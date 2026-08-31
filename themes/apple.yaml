@@ -1,4 +1,6 @@
 # Apple Optik 1.6
+# Designs neu laden, Profil → Apple
+
 Apple:
   apple-bg: "#000000"
   apple-surface: "#1C1C1E"
@@ -10,15 +12,54 @@ Apple:
   apple-gold-dim: "#C9893A"
   apple-light: "#FFD60A"
   apple-hairline: "rgba(255, 255, 255, 0.14)"
+  apple-fill: "rgba(118, 118, 128, 0.36)"
+  apple-red: "#FF6961"
+  apple-orange: "#FFB340"
+  apple-green: "#30DB5B"
+  apple-blue: "#64D2FF"
+  apple-indigo: "#7D7AFF"
   primary-color: "#E8B57A"
   accent-color: "#E8B57A"
+  state-icon-color: "#E8B57A"
+  dark-primary-color: "#E8B57A"
+  light-primary-color: "#F0C089"
+  ha-card-border-radius: "20px"
+  ha-card-border-width: "0px"
+  ha-card-box-shadow: "none"
+  ha-dialog-border-radius: "28px"
+  mush-spacing: 10px
+  mush-icon-size: 30px
+  mush-icon-border-radius: 8px
+  mush-control-border-radius: 20px
+  mush-chip-border-radius: 18px
+  mush-chip-height: 32px
+  mush-chip-background: "rgba(118, 118, 128, 0.36)"
+  mush-card-primary-color: "#F5F5F7"
+  mush-card-secondary-color: "#C7C7CC"
+  mush-title-font-size: 34px
+  mush-title-font-weight: 700
+  mush-title-color: "#F5F5F7"
+  switch-checked-color: "#30DB5B"
+  slider-color: "#E8B57A"
+  error-color: "#FF6961"
+  warning-color: "#FFB340"
+  success-color: "#30DB5B"
+  info-color: "#64D2FF"
   modes:
     dark:
       primary-background-color: "#000000"
       lovelace-background: "#000000"
+      secondary-background-color: "#1C1C1E"
       card-background-color: "#1C1C1E"
+      ha-card-background: "#1C1C1E"
       primary-text-color: "#F5F5F7"
+      secondary-text-color: "#C7C7CC"
+      app-header-text-color: "#F5F5F7"
+      sidebar-background-color: "#000000"
+      sidebar-selected-icon-color: "#E8B57A"
+      apple-light: "#FFD60A"
     light:
       primary-background-color: "#F2F2F7"
       card-background-color: "#FFFFFF"
       primary-text-color: "#1C1C1E"
+      apple-light: "#FFCC00"
