@@ -53,6 +53,29 @@ drop_tv /config/dashboards/timo.yaml
 drop_tv /config/zuhause.yaml
 drop_tv /config/timo.yaml
 
+js="/config/www/apple-optik.js"
+if [ -f "$js" ] && ! grep -q 'data-panel="admin"' "$js"; then
+  log "patch HACS wash guard into apple-optik.js"
+  cat >> "$js" << 'ENDJS'
+
+;(function () {
+  function markPanel() {
+    var p = location.pathname || "";
+    var admin = /\/(hacs|config|developer-tools|history|logbook|media-browser|profile)\b/.test(p);
+    document.documentElement.setAttribute("data-panel", admin ? "admin" : "dash");
+  }
+  var s = document.createElement("style");
+  s.textContent = 'html[data-panel="admin"]::before,html[data-panel="admin"]::after{content:none!important;display:none!important;z-index:-1!important;}html[data-panel="admin"],html[data-panel="admin"] body,html[data-panel="admin"] home-assistant,html[data-panel="admin"] ha-app-layout{background:var(--primary-background-color,#111)!important;}';
+  (document.head || document.documentElement).appendChild(s);
+  markPanel();
+  window.addEventListener("location-changed", markPanel);
+  window.addEventListener("popstate", markPanel);
+})();
+ENDJS
+else
+  log "JS HACS guard already present or JS missing"
+fi
+
 log "ha core check"
 ha core check
 log "OK — Browser hart neu. Restart nur bei configuration.yaml."
