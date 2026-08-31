@@ -1,0 +1,8 @@
+secrets.yaml
+*.sqlite*
+.storage/
+home-assistant.log*
+*.log
+__pycache__/
+.DS_Store
+gemini-code-*.sh
