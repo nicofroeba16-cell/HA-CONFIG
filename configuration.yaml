@@ -8,7 +8,7 @@ homeassistant:
 frontend:
   themes: !include_dir_merge_named themes
 
-# YAML-Dashboards (scp nach /config/dashboards/, Storage-Duplikate dashboard_x/timo dann entfernen)
+# YAML-Dashboards unter /config/dashboards/. Storage-Duplikate dashboard_x / dashboard-timo entfernen.
 lovelace:
   dashboards:
     dashboard-x:
