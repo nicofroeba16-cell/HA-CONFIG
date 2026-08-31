@@ -3,7 +3,6 @@
 # Designs neu laden, Profil → Apple
 
 Apple:
-  # --- Tokens (werden zu --apple-*) ---
   apple-bg: "#000000"
   apple-surface: "#1C1C1E"
   apple-elevated: "#2C2C2E"
@@ -20,25 +19,20 @@ Apple:
   apple-green: "#30DB5B"
   apple-blue: "#64D2FF"
   apple-indigo: "#7D7AFF"
-
   primary-color: "#E8B57A"
   accent-color: "#E8B57A"
   state-icon-color: "#E8B57A"
   dark-primary-color: "#E8B57A"
   light-primary-color: "#F0C089"
-
   ha-font-family-body: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif"
   ha-font-family-heading: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif"
   ha-font-family-code: "'SF Mono', ui-monospace, Menlo, monospace"
   paper-font-common-base_-_font-family: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif"
-
   ha-card-border-radius: "20px"
   ha-card-border-width: "0px"
   ha-card-box-shadow: "none"
   ha-dialog-border-radius: "28px"
   md-card-border-radius: "20px"
-
-  # --- Mushroom ---
   mush-spacing: 10px
   mush-icon-size: 30px
   mush-icon-border-radius: 8px
@@ -84,7 +78,6 @@ Apple:
   mush-rgb-brown: "188, 148, 104"
   mush-rgb-grey: "199, 199, 204"
   mush-rgb-blue-grey: "174, 174, 178"
-
   switch-checked-color: "#30DB5B"
   switch-unchecked-button-color: "#FFFFFF"
   switch-unchecked-track-color: "#39393D"
@@ -94,12 +87,10 @@ Apple:
   input-idle-line-color: "rgba(84, 84, 88, 0.65)"
   input-fill-color: "#2C2C2E"
   input-dropdown-icon-color: "#E8B57A"
-
   error-color: "#FF6961"
   warning-color: "#FFB340"
   success-color: "#30DB5B"
   info-color: "#64D2FF"
-
   modes:
     dark:
       primary-background-color: "#000000"
