@@ -1,0 +1,24 @@
+# Apple Optik 1.6
+Apple:
+  apple-bg: "#000000"
+  apple-surface: "#1C1C1E"
+  apple-elevated: "#2C2C2E"
+  apple-label: "#F5F5F7"
+  apple-secondary: "#C7C7CC"
+  apple-tertiary: "#8E8E93"
+  apple-gold: "#E8B57A"
+  apple-gold-dim: "#C9893A"
+  apple-light: "#FFD60A"
+  apple-hairline: "rgba(255, 255, 255, 0.14)"
+  primary-color: "#E8B57A"
+  accent-color: "#E8B57A"
+  modes:
+    dark:
+      primary-background-color: "#000000"
+      lovelace-background: "#000000"
+      card-background-color: "#1C1C1E"
+      primary-text-color: "#F5F5F7"
+    light:
+      primary-background-color: "#F2F2F7"
+      card-background-color: "#FFFFFF"
+      primary-text-color: "#1C1C1E"
