@@ -1,5 +1,5 @@
 #!/bin/bash
-# HA-CONFIG deploy v1.9.21 — fuenf Dateien, kein configuration.yaml, kein restart
+# HA-CONFIG deploy v1.9.22 — fuenf Dateien, TV-Strip, kein configuration.yaml, kein restart
 set -euo pipefail
 log() { echo "[deploy] $*"; }
 
@@ -17,6 +17,29 @@ need /config/timo.yaml
 need /config/apple.yaml
 need /config/apple-optik.js
 need /config/deploy.sh
+
+strip_tv() {
+  f="$1"
+  grep -q 'wohnzimmer_wohnzimmer_firetv_television' "$f" || return 0
+  log "strip fernseher $(basename "$f")"
+  awk '
+    /type: custom:ios-media-player/ {
+      line1=$0
+      if ((getline line2) <= 0) { print line1; next }
+      if ((getline line3) <= 0) { print line1; print line2; next }
+      if (line2 ~ /wohnzimmer_wohnzimmer_firetv_television/) next
+      print line1
+      print line2
+      print line3
+      next
+    }
+    { print }
+  ' "$f" > "$f.tmp"
+  mv "$f.tmp" "$f"
+}
+
+strip_tv /config/zuhause.yaml
+strip_tv /config/timo.yaml
 
 copy_one() {
   src="$1"; dst="$2"
@@ -38,4 +61,4 @@ fi
 
 log "ha core check"
 ha core check
-log "OK v1.9.21"
+log "OK v1.9.22"
