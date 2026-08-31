@@ -1,0 +1,1566 @@
+title: Zuhause
+navbar-templates:
+  zuhause_nav:
+    desktop:
+      position: bottom
+      show_labels: true
+    mobile:
+      show_labels: true
+      mode: floating
+    layout:
+      auto_padding:
+        enabled: true
+        desktop_px: 160
+        mobile_px: 224
+    routes:
+      - icon: mdi:sofa
+        url: /dashboard-x/nico-zimmer
+        label: Nico
+      - icon: mdi:television
+        url: /dashboard-x/medien
+        label: Medien
+      - icon: mdi:home
+        url: /dashboard-x/haus
+        label: Haus
+      - icon: mdi:server-network
+        url: /dashboard-x/system
+        label: System
+      - icon: mdi:alert-circle
+        url: /dashboard-x/system-warnungen
+        label: Alarm
+    styles: |
+      :host {
+        --navbar-primary-color: var(--apple-gold, #e8b57a);
+      }
+
+      .navbar.mobile {
+        --navbar-left-margin: 0px;
+      }
+
+      .navbar.mobile,
+      .navbar.mobile.floating {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile ha-card,
+      ha-card.navbar-card.mobile,
+      ha-card.navbar-card.mobile.floating,
+      .navbar-card.mobile,
+      .navbar-card.mobile.floating {
+        display: flex !important;
+        justify-content: stretch !important;
+        align-items: stretch !important;
+        gap: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        margin-bottom: 0 !important;
+        transform: none !important;
+        padding: 6px 8px !important;
+        border-radius: 28px !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile .route,
+      .navbar-card.mobile .route {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+
+      .navbar.mobile .button {
+        max-width: none !important;
+        width: 100% !important;
+      }
+
+      .navbar.mobile .label {
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+views:
+  - title: Haus
+    path: haus
+    icon: mdi:home
+    type: sections
+    max_columns: 4
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Zuhause
+            subtitle: Health · System
+          - type: custom:mushroom-chips-card
+            alignment: center
+            chips:
+              - type: template
+                content: >-
+                  {% set wan =
+                  states('binary_sensor.fritz_box_6670_cable_wan_status') %} {{
+                  'Online' if wan == 'on' else 'Offline' }}
+                icon: mdi:web
+                icon_color: >-
+                  {{ 'green' if
+                  is_state('binary_sensor.fritz_box_6670_cable_wan_status','on')
+                  else 'red' }}
+                tap_action:
+                  action: navigate
+                  navigation_path: /dashboard-x/system
+              - type: template
+                content: >-
+                  {% set t = states('sensor.vertical_pool_heat_pump_temperatur')
+                  %} Pool {{ t if t not in ['unknown','unavailable'] else '--' }}°
+                icon: mdi:pool
+                icon_color: cyan
+                tap_action:
+                  action: navigate
+                  navigation_path: /dashboard-x/aussenbereich
+              - type: template
+                content: >-
+                  {% set a = states('sensor.rasen_mahroboter_akku') %} Mäher {{
+                  a if a not in ['unknown','unavailable'] else '--' }}%
+                icon: mdi:robot-mower
+                icon_color: >-
+                  {% set a = states('sensor.rasen_mahroboter_akku') | float(0)
+                  %} {% set sl = states('sensor.rasen_mahroboter_status') |
+                  lower %} {% if 'charg' in sl or 'dock' in sl or 'park' in sl
+                  or 'mode_not_active' in sl %}
+                    {{ 'cyan' if a < 95 else 'green' }}
+                  {% elif a < 20 %}
+                    red
+                  {% elif a < 40 %}
+                    orange
+                  {% else %}
+                    green
+                  {% endif %}
+                tap_action:
+                  action: navigate
+                  navigation_path: /dashboard-x/aussenbereich
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Bereiche
+            subtitle: Live-Status & Navigation
+          - type: custom:mushroom-template-card
+            primary: Nico-Zimmer
+            secondary: Dein Bereich · Medien & Licht
+            icon: mdi:home-floor-negative-1
+            icon_color: deep-purple
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/nico-zimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Timo-Zimmer
+            secondary: Dachgeschoss
+            icon: mdi:home-floor-1
+            icon_color: blue
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/timo-zimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Hütte
+            secondary: Gartenhaus & AVR
+            icon: mdi:home-variant
+            icon_color: orange
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/huette
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Außenbereich
+            secondary: >-
+              Pool {{ states('sensor.vertical_pool_heat_pump_temperatur')
+              }}°C
+            icon: mdi:tree
+            icon_color: green
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/aussenbereich
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Erdgeschoss
+            secondary: Mika · Juli · Flur · Wohnzimmer
+            icon: mdi:home-floor-0
+            icon_color: teal
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/erdgeschoss
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: System & Geräte
+            subtitle: Infrastruktur
+          - type: custom:mushroom-template-card
+            primary: System
+            secondary: Netzwerk · Backup
+            icon: mdi:server-network
+            icon_color: teal
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/system
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Warnungen
+            secondary: >-
+              {% set p = states('sensor.offene_systemwarnungen') | int(0) %}
+              {{ p ~ ' offene Warnung(en)' if p > 0 else 'Keine Warnungen' }}
+            icon: >-
+              {{ 'mdi:shield-alert' if
+              states('sensor.offene_systemwarnungen') | int(0) > 0 else
+              'mdi:shield-check' }}
+            icon_color: >-
+              {{ 'orange' if states('sensor.offene_systemwarnungen') |
+              int(0) > 0 else 'green' }}
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/system-warnungen
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Mobilgeräte
+            secondary: Handy · Tablet · Uhr
+            icon: mdi:cellphone
+            icon_color: indigo
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/mobilgeraete
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Mobilgeräte
+    path: mobilgeraete
+    icon: mdi:cellphone
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:battery-state-card
+            title: Akkus
+            sort:
+              - by: state
+            tap_action:
+              action: more-info
+            bulk_rename: false
+            collapse: 8
+            min_width: 0
+            round: 0
+            spacing: 4
+            colors:
+              steps:
+                - value: 20
+                  color: '#FF453A'
+                - value: 50
+                  color: '#FFD60A'
+                - value: 100
+                  color: '#30D158'
+            charging_state:
+              state:
+                - Charging
+                - charging
+              icon: mdi:battery-charging
+              color: '#64D2FF'
+              secondary_info_text: Lädt
+            secondary_info: '{charging.text}'
+            entities:
+              - entity: sensor.iphone_von_nico_froba_battery_level
+                name: Nico iPhone
+                icon: mdi:cellphone
+                charging_state:
+                  entity_id: sensor.iphone_von_nico_froba_battery_state
+                  state:
+                    - Charging
+                    - charging
+                  icon: mdi:battery-charging
+                  color: '#64D2FF'
+                  secondary_info_text: Lädt
+              - entity: sensor.ipad_pro_von_nico_battery_level
+                name: Nico iPad Pro
+                icon: mdi:tablet
+                charging_state:
+                  entity_id: sensor.ipad_pro_von_nico_battery_state
+                  state:
+                    - Charging
+                    - charging
+                  icon: mdi:battery-charging
+                  color: '#64D2FF'
+                  secondary_info_text: Lädt
+              - entity: sensor.iphone_von_nico_froba_watch_battery_level
+                name: Nico Watch
+                icon: mdi:watch
+                charging_state:
+                  entity_id: sensor.iphone_von_nico_froba_watch_battery_state
+                  state:
+                    - Charging
+                    - charging
+                  icon: mdi:battery-charging
+                  color: '#64D2FF'
+                  secondary_info_text: Lädt
+              - entity: sensor.timo_handy_battery_level
+                name: Timo Handy
+                icon: mdi:cellphone
+                charging_state:
+                  entity_id: sensor.timo_handy_battery_state
+                  state:
+                    - Charging
+                    - charging
+                  icon: mdi:battery-charging
+                  color: '#64D2FF'
+                  secondary_info_text: Lädt
+              - entity: sensor.iphone_von_mika_battery_level
+                name: Mika iPhone
+                icon: mdi:cellphone
+                charging_state:
+                  entity_id: sensor.iphone_von_mika_battery_state
+                  state:
+                    - Charging
+                    - charging
+                  icon: mdi:battery-charging
+                  color: '#64D2FF'
+                  secondary_info_text: Lädt
+              - entity: sensor.pixel_9_pro_xl_battery_level
+                name: Gabi Pixel
+                icon: mdi:cellphone
+                charging_state:
+                  entity_id: sensor.pixel_9_pro_xl_battery_state
+                  state:
+                    - Charging
+                    - charging
+                  icon: mdi:battery-charging
+                  color: '#64D2FF'
+                  secondary_info_text: Lädt
+          - type: custom:mushroom-chips-card
+            alignment: start
+            chips:
+              - type: template
+                content: Nico
+                icon: mdi:bell-ring
+                tap_action:
+                  action: call-service
+                  service: notify.mobile_app_iphone_von_nico_froba
+                  data:
+                    title: Mobilgeräte
+                    message: Ping vom Dashboard
+                    data:
+                      push:
+                        sound:
+                          name: default
+                          volume: 1
+                      interruption-level: time-sensitive
+                  confirmation:
+                    text: Nico iPhone anpingen?
+              - type: template
+                content: iPad
+                icon: mdi:bell-ring
+                tap_action:
+                  action: call-service
+                  service: notify.mobile_app_ipad_pro_von_nico
+                  data:
+                    title: Mobilgeräte
+                    message: Ping vom Dashboard
+                    data:
+                      push:
+                        sound:
+                          name: default
+                          volume: 1
+                      interruption-level: time-sensitive
+                  confirmation:
+                    text: iPad anpingen?
+              - type: template
+                content: Timo
+                icon: mdi:bell-ring
+                tap_action:
+                  action: call-service
+                  service: notify.mobile_app_timo_handy
+                  data:
+                    title: Mobilgeräte
+                    message: Ping vom Dashboard
+                    data:
+                      push:
+                        sound:
+                          name: default
+                          volume: 1
+                      interruption-level: time-sensitive
+                  confirmation:
+                    text: Timo Handy anpingen?
+              - type: template
+                content: Mika
+                icon: mdi:bell-ring
+                tap_action:
+                  action: call-service
+                  service: notify.mobile_app_iphone_von_mika
+                  data:
+                    title: Mobilgeräte
+                    message: Ping vom Dashboard
+                    data:
+                      push:
+                        sound:
+                          name: default
+                          volume: 1
+                      interruption-level: time-sensitive
+                  confirmation:
+                    text: Mika iPhone anpingen?
+              - type: template
+                content: Gabi
+                icon: mdi:bell-ring
+                tap_action:
+                  action: call-service
+                  service: notify.mobile_app_pixel_9_pro_xl
+                  data:
+                    title: Mobilgeräte
+                    message: Ping vom Dashboard
+                    data:
+                      push:
+                        sound:
+                          name: default
+                          volume: 1
+                      interruption-level: time-sensitive
+                  confirmation:
+                    text: Gabi Pixel anpingen?
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Nico-Zimmer
+    path: nico-zimmer
+    icon: mdi:home-floor-negative-1
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Beleuchtung
+            subtitle: TV · Schrank · Schreibtisch
+          - type: custom:ios-light-card
+            entity: light.kronach_fernseher_links
+            name: TV Links
+          - type: custom:ios-light-card
+            entity: light.kronach_fernseher_rechts
+            name: TV Rechts
+          - type: custom:ios-light-card
+            entity: light.kronach_schrank
+            name: Schrank
+          - type: custom:ios-light-card
+            entity: switch.schreibtisch_rgb_standlampe_steckdose_1
+            name: Schreibtischlampe
+      - type: grid
+        cards:
+          - type: conditional
+            conditions:
+              - entity: group.nico_beleuchtung
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Licht Master
+              secondary: Geräte an
+              icon: mdi:power
+              icon_color: green
+              tap_action:
+                action: call-service
+                service: homeassistant.turn_off
+                target:
+                  entity_id: group.nico_beleuchtung
+                confirmation:
+                  text: Alle Lichter ausschalten?
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - entity: group.nico_beleuchtung
+                state_not: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Licht Master
+              secondary: Alles aus
+              icon: mdi:power
+              icon_color: red
+              tap_action:
+                action: call-service
+                service: homeassistant.turn_on
+                target:
+                  entity_id: group.nico_beleuchtung
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Prisma
+            secondary: Schrank-Effekt
+            icon: mdi:palette
+            icon_color: purple
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              target:
+                entity_id: scene.kronach_kronach_prisma
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Medien-Center
+            subtitle: Apple TV · Denon · PS5
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.nico_medien_aktiv
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Medien Master
+              secondary: Geräte aktiv
+              icon: mdi:power
+              icon_color: green
+              tap_action:
+                action: call-service
+                service: script.turn_on
+                target:
+                  entity_id: script.nico_medien_master_zentrale
+                confirmation:
+                  text: Medien ausschalten?
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.nico_medien_aktiv
+                state_not: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Medien Master
+              secondary: Alles aus
+              icon: mdi:power
+              icon_color: red
+              tap_action:
+                action: call-service
+                service: script.turn_on
+                target:
+                  entity_id: script.nico_medien_master_zentrale
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            entity: switch.tv_steckdose_1
+            primary: TV Steckdose
+            secondary: '{{ ''Ein'' if is_state(''switch.tv_steckdose_1'',''on'') else ''Aus'' }}'
+            icon: mdi:power-socket-eu
+            icon_color: >-
+              {{ 'green' if is_state('switch.tv_steckdose_1','on') else 'grey'
+              }}
+            tap_action:
+              action: toggle
+          - type: custom:ios-media-player
+            entity: media_player.nico_zimmer_untergeschoss_apple_tv
+            name: Apple TV
+            volume_entity: media_player.denon_avr_x1300w
+          - type: custom:ios-media-player
+            entity: media_player.denon_avr_x1300w
+            name: Denon AVR
+            role: receiver
+          - type: custom:ios-media-player
+            entity: media_player.playstation_5
+            name: PlayStation 5
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Medien
+    path: medien
+    icon: mdi:television
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Nico-Zimmer
+            subtitle: Apple TV · Denon · PS5
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.nico_medien_aktiv
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Medien Master
+              secondary: Geräte aktiv
+              icon: mdi:power
+              icon_color: green
+              tap_action:
+                action: call-service
+                service: script.turn_on
+                target:
+                  entity_id: script.nico_medien_master_zentrale
+                confirmation:
+                  text: Medien ausschalten?
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.nico_medien_aktiv
+                state_not: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Medien Master
+              secondary: Alles aus
+              icon: mdi:power
+              icon_color: red
+              tap_action:
+                action: call-service
+                service: script.turn_on
+                target:
+                  entity_id: script.nico_medien_master_zentrale
+          - type: custom:ios-media-player
+            entity: media_player.nico_zimmer_untergeschoss_apple_tv
+            name: Apple TV
+            volume_entity: media_player.denon_avr_x1300w
+          - type: custom:ios-media-player
+            entity: media_player.denon_avr_x1300w
+            name: Denon AVR (Nico)
+            role: receiver
+          - type: custom:ios-media-player
+            entity: media_player.playstation_5
+            name: PlayStation 5
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Hütte
+            subtitle: Denon · GigaTV
+          - type: custom:ios-media-player
+            entity: media_player.denon_avr_x1800h
+            name: Denon AVR (Hütte)
+            role: receiver
+          - type: custom:ios-media-player
+            entity: media_player.gigatv_home
+            name: GigaTV
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Weitere Geräte
+            subtitle: Timo · Mika
+          - type: custom:ios-media-player
+            entity: media_player.schlafzimmer
+            name: Audio Schlafzimmer (Timo)
+          - type: custom:ios-media-player
+            entity: media_player.fire_tv_192_168_178_54
+            name: Mika Fernseher
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: System & Netzwerk
+    path: system
+    icon: mdi:server-network
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: FRITZ!Box
+            subtitle: Internet & Router
+          - type: custom:mushroom-template-card
+            primary: Internet Status
+            secondary: >-
+              {% set wan =
+              states('binary_sensor.fritz_box_6670_cable_wan_status') %} {{
+              'Verbunden' if wan == 'on' else ('Offline' if wan == 'off' else
+              'Unbekannt') }}
+            icon: mdi:web
+            icon_color: >-
+              {{ 'green' if
+              is_state('binary_sensor.fritz_box_6670_cable_wan_status','on')
+              else 'red' }}
+          - type: custom:mushroom-template-card
+            primary: Neustart
+            secondary: Fritz!Box
+            icon: mdi:restart
+            icon_color: red
+            tap_action:
+              action: call-service
+              service: button.press
+              target:
+                entity_id: button.fritz_box_6670_cable_reboot
+              confirmation: Router wirklich neu starten?
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: WLAN Steuerung
+            subtitle: 2,4 GHz · 5 GHz · Gast
+          - type: custom:mushroom-template-card
+            entity: switch.fritz_box_6670_cable_wi_fi_main_2_4ghz
+            primary: 2,4 GHz Netz
+            secondary: >-
+              {{ 'Ein' if
+              is_state('switch.fritz_box_6670_cable_wi_fi_main_2_4ghz','on')
+              else 'Aus' }}
+            icon: mdi:wifi
+            icon_color: >-
+              {{ 'blue' if
+              is_state('switch.fritz_box_6670_cable_wi_fi_main_2_4ghz','on')
+              else 'grey' }}
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-template-card
+            entity: switch.fritz_box_6670_cable_wi_fi_main_5ghz
+            primary: 5 GHz Netz
+            secondary: >-
+              {{ 'Ein' if
+              is_state('switch.fritz_box_6670_cable_wi_fi_main_5ghz','on') else
+              'Aus' }}
+            icon: mdi:wifi
+            icon_color: >-
+              {{ 'blue' if
+              is_state('switch.fritz_box_6670_cable_wi_fi_main_5ghz','on') else
+              'grey' }}
+            tap_action:
+              action: toggle
+          - type: custom:mushroom-template-card
+            entity: switch.fritz_box_6670_cable_wi_fi_guest
+            primary: Gast-WLAN
+            secondary: >-
+              {{ 'Ein' if
+              is_state('switch.fritz_box_6670_cable_wi_fi_guest','on') else
+              'Aus' }}
+            icon: mdi:wifi-lock
+            icon_color: >-
+              {{ 'orange' if
+              is_state('switch.fritz_box_6670_cable_wi_fi_guest','on') else
+              'grey' }}
+            tap_action:
+              action: toggle
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: AdGuard Home
+            subtitle: DNS-Schutz & Filterung
+          - type: custom:mushroom-template-card
+            entity: switch.adguard_home_schutz
+            primary: AdGuard Schutz
+            secondary: |-
+              {% if is_state('switch.adguard_home_schutz','on') %}
+                Schutz aktiv
+              {% else %}
+                Schutz deaktiviert
+              {% endif %}
+            icon: mdi:shield-check
+            icon_color: >-
+              {{ 'green' if is_state('switch.adguard_home_schutz','on') else
+              'red' }}
+            tap_action:
+              action: toggle
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: System Updates
+            subtitle: Home Assistant & Backup
+          - type: custom:mushroom-template-card
+            entity: update.home_assistant_core_update
+            primary: Core Update
+            secondary: >-
+              {{ 'Update verfügbar' if
+              is_state('update.home_assistant_core_update','on') else 'Aktuell'
+              }}
+            icon: mdi:home-assistant
+            icon_color: >-
+              {{ 'orange' if is_state('update.home_assistant_core_update','on')
+              else 'green' }}
+          - type: custom:mushroom-template-card
+            entity: update.home_assistant_operating_system_update
+            primary: OS Update
+            secondary: >-
+              {{ 'Update verfügbar' if
+              is_state('update.home_assistant_operating_system_update','on')
+              else 'Aktuell' }}
+            icon: mdi:server
+            icon_color: >-
+              {{ 'orange' if
+              is_state('update.home_assistant_operating_system_update','on')
+              else 'green' }}
+          - type: custom:mushroom-template-card
+            primary: Letztes Backup
+            secondary: >-
+              {% set b =
+              states('sensor.backup_last_successful_automatic_backup') %} {% if
+              b in ['unknown','unavailable','none',''] %}
+                Kein Backup bekannt
+              {% else %}
+                {% set dt = as_datetime(b, default=none) %}
+                {% set hours = ((as_timestamp(now()) - as_timestamp(dt)) / 3600) | int %}
+                {% if hours < 1 %}
+                  vor wenigen Minuten
+                {% elif hours < 24 %}
+                  vor {{ hours }} Stunden
+                {% else %}
+                  vor {{ (hours / 24) | int }} Tagen
+                {% endif %}
+              {% endif %}
+            icon: mdi:backup-restore
+            icon_color: >-
+              {% set b =
+              states('sensor.backup_last_successful_automatic_backup') %} {% set
+              ts = as_timestamp(b, default=0) %} {% set hours =
+              ((as_timestamp(now()) - ts) / 3600) if ts > 0 else 9999 %} {% if
+              ts == 0 or hours > 72 %} red {% elif hours > 24 %} orange {% else
+              %} green {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Systemwarnungen
+            secondary: >-
+              {% set p = states('sensor.offene_systemwarnungen') | int(0) %} {{
+              p ~ ' offene Warnung(en)' if p > 0 else 'Keine Warnungen'
+              }}
+            icon: >-
+              {{ 'mdi:shield-alert' if states('sensor.offene_systemwarnungen') |
+              int(0) > 0 else 'mdi:shield-check' }}
+            icon_color: >-
+              {{ 'orange' if states('sensor.offene_systemwarnungen') | int(0) >
+              0 else 'green' }}
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/system-warnungen
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Systemwarnungen
+    path: system-warnungen
+    icon: mdi:alert-circle
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: conditional
+            conditions:
+              - entity: sensor.offene_systemwarnungen
+                state: '0'
+            card:
+              type: custom:mushroom-template-card
+              primary: Alles klar
+              secondary: Keine offenen Warnungen
+              icon: mdi:shield-check
+              icon_color: green
+              layout: horizontal
+          - type: conditional
+            conditions:
+              - entity: binary_sensor.fritz_box_6670_cable_wan_status
+                state_not: 'on'
+            card:
+              type: custom:mushroom-template-card
+              entity: input_boolean.wan_warnung_quittiert
+              primary: Internetverbindung
+              secondary: |-
+                {% if is_state('input_boolean.wan_warnung_quittiert','on') %}
+                  ✓ Warnung gelesen
+                {% else %}
+                  WAN-Verbindung ausgefallen / unbekannt
+                {% endif %}
+              icon: >-
+                {{ 'mdi:check-circle' if
+                is_state('input_boolean.wan_warnung_quittiert','on') else
+                'mdi:web-off' }}
+              icon_color: >-
+                {{ 'green' if
+                is_state('input_boolean.wan_warnung_quittiert','on') else 'red'
+                }}
+              tap_action:
+                action: toggle
+          - type: conditional
+            conditions:
+              - entity: switch.adguard_home_schutz
+                state_not: 'on'
+            card:
+              type: custom:mushroom-template-card
+              entity: input_boolean.adguard_warnung_quittiert
+              primary: AdGuard Home
+              secondary: >-
+                {% if is_state('input_boolean.adguard_warnung_quittiert','on')
+                %}
+                  ✓ Warnung gelesen
+                {% else %}
+                  Schutz ist deaktiviert
+                {% endif %}
+              icon: >-
+                {{ 'mdi:check-circle' if
+                is_state('input_boolean.adguard_warnung_quittiert','on') else
+                'mdi:shield-alert' }}
+              icon_color: >-
+                {{ 'green' if
+                is_state('input_boolean.adguard_warnung_quittiert','on') else
+                'orange' }}
+              tap_action:
+                action: toggle
+          - type: custom:mushroom-template-card
+            entity: input_boolean.backup_warnung_quittiert
+            primary: Backup
+            secondary: >-
+              {% set b =
+              states('sensor.backup_last_successful_automatic_backup') %} {% set
+              ts = as_timestamp(b, 0) %} {% set hours = ((as_timestamp(now()) -
+              ts) / 3600) if ts > 0 else 9999 %} {% if
+              is_state('input_boolean.backup_warnung_quittiert','on') %}
+                ✓ Warnung gelesen
+              {% elif ts == 0 %}
+                Kein erfolgreiches Backup bekannt
+              {% elif hours > 24 %}
+                Letztes Backup vor {{ hours | round(0) }} Stunden
+              {% else %}
+                Letztes Backup ok
+              {% endif %}
+            icon: >-
+              {{ 'mdi:check-circle' if
+              is_state('input_boolean.backup_warnung_quittiert','on') else
+              'mdi:backup-restore' }}
+            icon_color: >-
+              {% set b =
+              states('sensor.backup_last_successful_automatic_backup') %} {% set
+              ts = as_timestamp(b, 0) %} {% set hours = ((as_timestamp(now()) -
+              ts) / 3600) if ts > 0 else 9999 %} {% if
+              is_state('input_boolean.backup_warnung_quittiert','on') %}
+                green
+              {% elif ts == 0 or hours > 24 %}
+                orange
+              {% else %}
+                green
+              {% endif %}
+            tap_action:
+              action: toggle
+          - type: conditional
+            conditions:
+              - entity: update.home_assistant_core_update
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              entity: input_boolean.core_update_warnung_quittiert
+              primary: Home Assistant Core
+              secondary: >-
+                {% if
+                is_state('input_boolean.core_update_warnung_quittiert','on') %}
+                  ✓ Update-Warnung gelesen
+                {% else %}
+                  Neues Core-Update verfügbar
+                {% endif %}
+              icon: >-
+                {{ 'mdi:check-circle' if
+                is_state('input_boolean.core_update_warnung_quittiert','on')
+                else 'mdi:home-assistant' }}
+              icon_color: >-
+                {{ 'green' if
+                is_state('input_boolean.core_update_warnung_quittiert','on')
+                else 'orange' }}
+              tap_action:
+                action: toggle
+          - type: conditional
+            conditions:
+              - entity: update.home_assistant_operating_system_update
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              entity: input_boolean.os_update_warnung_quittiert
+              primary: Home Assistant OS
+              secondary: >-
+                {% if is_state('input_boolean.os_update_warnung_quittiert','on')
+                %}
+                  ✓ Update-Warnung gelesen
+                {% else %}
+                  Neues OS-Update verfügbar
+                {% endif %}
+              icon: >-
+                {{ 'mdi:check-circle' if
+                is_state('input_boolean.os_update_warnung_quittiert','on') else
+                'mdi:server' }}
+              icon_color: >-
+                {{ 'green' if
+                is_state('input_boolean.os_update_warnung_quittiert','on') else
+                'orange' }}
+              tap_action:
+                action: toggle
+          - type: custom:mushroom-template-card
+            entity: input_boolean.mahroboter_warnung_quittiert
+            primary: Mähroboter
+            secondary: >-
+              {% set s = states('sensor.rasen_mahroboter_status') | string %} {%
+              set sl = s | lower %} {% if
+              is_state('input_boolean.mahroboter_warnung_quittiert','on') %}
+                ✓ Warnung gelesen
+              {% elif 'error' in sl or 'fehler' in sl or 'stuck' in sl or
+              'trapped' in sl %}
+                Fehler
+              {% elif 'mode_not_active' in sl or sl in
+              ['not_active','inactive','off'] %}
+                Inaktiv
+              {% elif 'park' in sl or sl in ['docked','home','idle'] %}
+                Parkt
+              {% elif 'charg' in sl %}
+                Lädt
+              {% else %}
+                {{ s }}
+              {% endif %}
+            icon: >-
+              {{ 'mdi:check-circle' if
+              is_state('input_boolean.mahroboter_warnung_quittiert','on') else
+              'mdi:robot-mower-alert' }}
+            icon_color: >-
+              {% set s = states('sensor.rasen_mahroboter_status') | lower %} {%
+              if is_state('input_boolean.mahroboter_warnung_quittiert','on') %}
+                green
+              {% elif 'error' in s or 'fehler' in s or 'stuck' in s or 'trapped'
+              in s %}
+                red
+              {% else %}
+                green
+              {% endif %}
+            tap_action:
+              action: toggle
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: Zurücksetzen
+            secondary: Alle ungelesen
+            icon: mdi:refresh
+            icon_color: blue
+            layout: horizontal
+            tap_action:
+              action: call-service
+              service: input_boolean.turn_off
+              target:
+                entity_id:
+                  - input_boolean.wan_warnung_quittiert
+                  - input_boolean.adguard_warnung_quittiert
+                  - input_boolean.backup_warnung_quittiert
+                  - input_boolean.core_update_warnung_quittiert
+                  - input_boolean.os_update_warnung_quittiert
+                  - input_boolean.mahroboter_warnung_quittiert
+              confirmation: Alle Warnungen wieder als ungelesen markieren?
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Timo-Zimmer
+    path: timo-zimmer
+    icon: mdi:home-floor-1
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Beleuchtung
+            subtitle: Hintergrund · Nachttisch · Decke
+          - type: custom:ios-light-card
+            entity: light.hintergrund_fernseher
+            name: TV Hintergrund
+          - type: custom:ios-light-card
+            entity: light.nachttisch
+            name: Nachttischlampe
+          - type: custom:ios-light-card
+            entity: light.schlafzimmer
+            name: Deckenlampe
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Audio
+            subtitle: Schlafzimmer
+          - type: custom:ios-media-player
+            entity: media_player.schlafzimmer
+            name: Audio Schlafzimmer
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Status
+            subtitle: Presence & Akkus
+          - type: custom:mushroom-chips-card
+            chips:
+              - type: template
+                content: >-
+                  {% set t = states('device_tracker.timo_handy') %} {{ 'Zuhause'
+                  if t == 'home' else ('Unterwegs' if t == 'not_home' else
+                  'Unbekannt') }}
+                icon: mdi:home-account
+                icon_color: >-
+                  {{ 'green' if is_state('device_tracker.timo_handy','home')
+                  else 'blue' }}
+              - type: template
+                content: >-
+                  {% set bat = states('sensor.timo_handy_battery_level') %}
+                  Akku: {{ bat if bat not in ['unknown','unavailable'] else '--'
+                  }}%
+                icon: mdi:cellphone
+                icon_color: >-
+                  {% set bat = states('sensor.timo_handy_battery_level') |
+                  float(100) %} {{ 'red' if bat < 20 else ('orange' if bat < 50
+                  else 'green') }}
+              - type: template
+                content: >-
+                  {% set s = states('sensor.schalter_batterie') %} Timo-Schalter
+                  {{ s if s not in ['unknown','unavailable'] else '--' }}%
+                icon: mdi:battery
+                icon_color: >-
+                  {% set s = states('sensor.schalter_batterie') | float(100) %}
+                  {{ 'red' if s < 20 else ('orange' if s < 50 else 'green') }}
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Hütte
+    path: huette
+    icon: mdi:home-variant
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Beleuchtung
+            subtitle: Ambiente · Tisch
+          - type: custom:ios-light-card
+            entity: light.hutte
+            name: Ambiente
+          - type: custom:ios-light-card
+            entity: light.tisch_tisch
+            name: Tisch
+      - type: grid
+        cards:
+          - type: conditional
+            conditions:
+              - entity: group.hutte_beleuchtung
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Licht Master
+              secondary: Geräte an
+              icon: mdi:power
+              icon_color: green
+              tap_action:
+                action: call-service
+                service: homeassistant.turn_off
+                target:
+                  entity_id: group.hutte_beleuchtung
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - entity: group.hutte_beleuchtung
+                state_not: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Licht Master
+              secondary: Alles aus
+              icon: mdi:power
+              icon_color: red
+              tap_action:
+                action: call-service
+                service: homeassistant.turn_on
+                target:
+                  entity_id: group.hutte_beleuchtung
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Tisch Gedimmt
+            secondary: Szene
+            icon: mdi:lamp
+            icon_color: amber
+            tap_action:
+              action: call-service
+              service: scene.turn_on
+              target:
+                entity_id: scene.hutte_master_tisch_gedimmt
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Medien
+            subtitle: Denon · GigaTV
+          - type: custom:ios-media-player
+            entity: media_player.denon_avr_x1800h
+            name: Denon AVR
+            role: receiver
+          - type: custom:ios-media-player
+            entity: media_player.gigatv_home
+            name: GigaTV
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Außenbereich
+    path: aussenbereich
+    icon: mdi:tree
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Pool
+            subtitle: Temperatur & Steuerung
+          - type: custom:mushroom-template-card
+            primary: >-
+              {% set t = states('sensor.vertical_pool_heat_pump_temperatur') %}
+              {{ t if t not in ['unknown','unavailable'] else '--' }} °C
+            secondary: Wassertemperatur
+            icon: mdi:pool-thermometer
+            icon_color: cyan
+            layout: horizontal
+          - type: custom:mushroom-template-card
+            entity: switch.vertical_pool_heat_pump_schalter
+            primary: Wärmepumpe
+            secondary: >-
+              {{ 'Ein' if
+              is_state('switch.vertical_pool_heat_pump_schalter','on') else
+              'Aus' }}
+            icon: mdi:heat-pump
+            icon_color: >-
+              {{ 'orange' if
+              is_state('switch.vertical_pool_heat_pump_schalter','on') else
+              'blue' }}
+            tap_action:
+              action: toggle
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Mähroboter
+            subtitle: Status & Akku
+          - type: custom:mushroom-template-card
+            primary: Status
+            secondary: >-
+              {% set s = states('sensor.rasen_mahroboter_status') | string %} {%
+              set sl = s | lower %} {% if sl in ['unknown','unavailable',''] %}
+                Unbekannt
+              {% elif 'mode_not_active' in sl or sl in
+              ['not_active','inactive','off'] %}
+                Inaktiv
+              {% elif 'park' in sl or sl in ['docked','home','idle'] %}
+                Parkt
+              {% elif 'charg' in sl %}
+                Lädt
+              {% elif 'mow' in sl %}
+                Mäht
+              {% elif 'return' in sl or 'going_home' in sl %}
+                Fährt zur Station
+              {% elif 'pause' in sl %}
+                Pause
+              {% elif 'rain' in sl %}
+                Regenpause
+              {% elif 'error' in sl or 'fehler' in sl or 'stuck' in sl or
+              'trapped' in sl %}
+                Fehler
+              {% else %}
+                {{ s }}
+              {% endif %}
+            icon: mdi:robot-mower
+            icon_color: >-
+              {% set sl = states('sensor.rasen_mahroboter_status') | lower %} {%
+              if 'error' in sl or 'fehler' in sl or 'stuck' in sl or 'trapped'
+              in sl %}
+                red
+              {% elif sl in ['unknown','unavailable',''] %}
+                grey
+              {% elif 'charg' in sl %}
+                cyan
+              {% else %}
+                green
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: >-
+              {% set a = states('sensor.rasen_mahroboter_akku') %} Akku: {{ a if
+              a not in ['unknown','unavailable'] else '--' }} %
+            secondary: >-
+              {% set sl = states('sensor.rasen_mahroboter_status') | lower %} {%
+              if 'charg' in sl %}
+                Lädt an der Station
+              {% elif 'mode_not_active' in sl or 'park' in sl or 'dock' in sl %}
+                In der Station
+              {% elif sl in ['unknown','unavailable',''] %}
+                Batteriestand
+              {% else %}
+                Batteriestand
+              {% endif %}
+            icon: mdi:battery
+            icon_color: >-
+              {% set a = states('sensor.rasen_mahroboter_akku') | float(0) %} {%
+              set sl = states('sensor.rasen_mahroboter_status') | lower %} {% if
+              'charg' in sl or 'dock' in sl or 'park' in sl or 'mode_not_active'
+              in sl %}
+                {{ 'cyan' if a < 95 else 'green' }}
+              {% elif a < 20 %}
+                red
+              {% elif a < 40 %}
+                orange
+              {% else %}
+                green
+              {% endif %}
+          - type: custom:mushroom-template-card
+            entity: lawn_mower.rasen_mahroboter
+            primary: Steuerung
+            secondary: Tippen für Optionen
+            icon: mdi:robot-mower
+            icon_color: teal
+            tap_action:
+              action: more-info
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Erdgeschoss
+    path: erdgeschoss
+    icon: mdi:home-floor-0
+    subview: true
+    back_path: /dashboard-x/haus
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Erdgeschoss
+            subtitle: Mika · Juli · Flur · Wohnzimmer
+          - type: custom:mushroom-template-card
+            primary: Mika
+            secondary: Fernseher
+            icon: mdi:television
+            icon_color: blue
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/mika-zimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Juli
+            secondary: Wird eingerichtet
+            icon: mdi:television-classic
+            icon_color: pink
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/juli-zimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Flur
+            secondary: Brother HL-L3210CW
+            icon: mdi:door
+            icon_color: grey
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/flur
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Wohnzimmer
+            secondary: Wird eingerichtet
+            icon: mdi:sofa
+            icon_color: amber
+            vertical: true
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-x/wohnzimmer
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+  - title: Mika-Zimmer
+    path: mika-zimmer
+    icon: mdi:television
+    subview: true
+    back_path: /dashboard-x/erdgeschoss
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Mika Zimmer
+            subtitle: Fernseher
+          - type: custom:ios-media-player
+            entity: media_player.fire_tv_192_168_178_54
+            name: Mika Fernseher
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+
+  - title: Juli-Zimmer
+    path: juli-zimmer
+    icon: mdi:television-classic
+    subview: true
+    back_path: /dashboard-x/erdgeschoss
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Juli Zimmer
+            subtitle: Smart-TV
+          - type: custom:mushroom-template-card
+            primary: Noch kein TV
+            secondary: Wird eingerichtet
+            icon: mdi:television-classic
+            icon_color: pink
+            layout: horizontal
+            grid_options:
+              columns: 12
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+
+  - title: Flur
+    path: flur
+    icon: mdi:door
+    subview: true
+    back_path: /dashboard-x/erdgeschoss
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Flur
+            subtitle: Brother HL-L3210CW
+          - type: custom:mushroom-template-card
+            primary: Schwarz
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_schwarz_toner')
+              %} {{ a if a not in ['unknown','unavailable','none'] else '--' }}
+              %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_schwarz_toner')
+              | float(-1) %} {{ 'grey' if a < 0 else ('grey' if a >= 15 else
+              'red') }}
+          - type: custom:mushroom-template-card
+            primary: Cyan
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_cyan_toner') %}
+              {{ a if a not in ['unknown','unavailable','none'] else '--' }} %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_cyan_toner') |
+              float(-1) %} {{ 'grey' if a < 0 else ('cyan' if a >= 15 else
+              'red') }}
+          - type: custom:mushroom-template-card
+            primary: Magenta
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_magenta_toner')
+              %} {{ a if a not in ['unknown','unavailable','none'] else '--' }}
+              %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_magenta_toner')
+              | float(-1) %} {{ 'grey' if a < 0 else ('purple' if a >= 15 else
+              'red') }}
+          - type: custom:mushroom-template-card
+            primary: Gelb
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_gelb_toner') %}
+              {{ a if a not in ['unknown','unavailable','none'] else '--' }} %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_gelb_toner') |
+              float(-1) %} {{ 'grey' if a < 0 else ('amber' if a >= 15 else
+              'red') }}
+          - type: custom:mushroom-template-card
+            primary: Druckerstatus
+            secondary: >-
+              {% set s = states('sensor.hl_l3210cw_status') %} {{ s if s not in
+              ['unknown','unavailable','none'] else 'Unbekannt' }}
+            icon: mdi:printer
+            icon_color: >-
+              {% set s = states('sensor.hl_l3210cw_status') | lower %} {% if
+              'error' in s or 'fehler' in s or 'offline' in s %}
+                red
+              {% elif 'bereit' in s or 'idle' in s or 'ready' in s %}
+                green
+              {% else %}
+                orange
+              {% endif %}
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav
+
+  - title: Wohnzimmer
+    path: wohnzimmer
+    icon: mdi:sofa
+    subview: true
+    back_path: /dashboard-x/erdgeschoss
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Wohnzimmer
+            subtitle: Smart-TV
+          - type: custom:mushroom-template-card
+            primary: Noch kein TV
+            secondary: Wird eingerichtet
+            icon: mdi:sofa
+            icon_color: amber
+            layout: horizontal
+            grid_options:
+              columns: 12
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: zuhause_nav

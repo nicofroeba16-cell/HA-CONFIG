@@ -1,0 +1,91 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+homeassistant:
+  packages: !include_dir_named packages
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+
+# YAML-Dashboards (scp nach /config/dashboards/, Storage-Duplikate dashboard_x/timo dann entfernen)
+lovelace:
+  dashboards:
+    dashboard-x:
+      mode: yaml
+      title: Zuhause
+      icon: mdi:home
+      show_in_sidebar: true
+      filename: dashboards/zuhause.yaml
+    dashboard-timo:
+      mode: yaml
+      title: Timo
+      show_in_sidebar: false
+      filename: dashboards/timo.yaml
+
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+group:
+  nico_beleuchtung:
+    name: Nico Beleuchtung
+    icon: mdi:lightbulb-group
+    entities:
+      - light.kronach_fernseher_links
+      - light.kronach_fernseher_rechts
+      - light.kronach_schrank
+      - switch.schreibtisch_rgb_standlampe_steckdose_1
+  hutte_beleuchtung:
+    name: Hütte Beleuchtung
+    icon: mdi:lightbulb-group
+    entities:
+      - light.hutte
+      - light.tisch_tisch
+
+logger:
+  default: warning
+
+recorder:
+  purge_keep_days: 10
+  exclude:
+    entity_globs:
+      - device_tracker.pc_*
+      - device_tracker.fritz_*
+      - sensor.*_ssid
+      - sensor.*_bssid
+      - sensor.*_geocoded_location
+      - sensor.*_last_update_trigger
+      - sensor.*_storage
+      - sensor.*_sim_*
+    entities:
+      - device_tracker.a22_von_eva
+      - device_tracker.amazon_4de2fee8e
+      - device_tracker.appletvnico
+      - device_tracker.brotherhl_l3210cw
+      - device_tracker.brothermfc_j4410dw
+      - device_tracker.chromecast
+      - device_tracker.denon_avr_x1800h
+      - device_tracker.denonavr_x1300w
+      - device_tracker.fb12590b136229fe
+      - device_tracker.gigatvhome_gigatv
+      - device_tracker.gigatvhome_gigatv_2
+      - device_tracker.google_home_mini
+      - device_tracker.google_home_mini_2
+      - device_tracker.google_home_mini_3
+      - device_tracker.homeassistant
+      - device_tracker.hue
+      - device_tracker.iphone
+      - device_tracker.iphone_2
+      - device_tracker.iphone_3
+      - device_tracker.iphone_4
+      - device_tracker.maehroboter
+      - device_tracker.ps4_8ac390
+      - device_tracker.ps5_af7d98
+      - device_tracker.ps5_b6ad7d
+      - device_tracker.rasen_mahroboter_luba_layw6wjy
+      - device_tracker.sicherungschalterwaermepumpe
+      - device_tracker.speedy_pro
+      - device_tracker.steckdoseheizung
+      - device_tracker.waermepumpe
