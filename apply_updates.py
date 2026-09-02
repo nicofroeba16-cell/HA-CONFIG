@@ -13,6 +13,29 @@ TV = (
     "            name: Fernseher\n"
 )
 
+MIKA_TV = (
+    "          - type: custom:ios-media-player\n"
+    "            entity: media_player.fire_tv_192_168_178_54\n"
+    "            name: Mika Fernseher\n"
+)
+
+JULI_TV = (
+    "          - type: custom:ios-media-player\n"
+    "            entity: media_player.fire_tv_192_168_178_75\n"
+    "            name: Juli Fernseher\n"
+)
+
+JULI_PLACEHOLDER = (
+    "          - type: custom:mushroom-template-card\n"
+    "            primary: Noch kein TV\n"
+    "            secondary: Wird eingerichtet\n"
+    "            icon: mdi:television-classic\n"
+    "            icon_color: pink\n"
+    "            layout: horizontal\n"
+    "            grid_options:\n"
+    "              columns: 12\n"
+)
+
 YAML_PATHS = (
     Path("/config/dashboards/zuhause.yaml"),
     Path("/config/dashboards/timo.yaml"),
@@ -29,14 +52,37 @@ JS_PATHS = (
 )
 
 
-def strip_tv(path: Path) -> str:
+def patch_yaml(path: Path) -> str:
     if not path.is_file():
         return f"skip yaml {path}"
+
     t = path.read_text()
-    if TV not in t:
-        return f"yaml ok {path.name}"
-    path.write_text(t.replace(TV, ""))
-    return f"yaml stripped {path.name}"
+    original = t
+
+    # Keep the existing Wohnzimmer cleanup.
+    t = t.replace(TV, "")
+
+    # Juli TV: add to the shared Medien view in every dashboard.
+    t = t.replace(
+        "            subtitle: Timo · Mika · Wohnzimmer\n",
+        "            subtitle: Timo · Mika · Juli · Wohnzimmer\n",
+    )
+    if JULI_TV not in t and MIKA_TV in t:
+        t = t.replace(MIKA_TV, MIKA_TV + JULI_TV, 1)
+
+    # Juli entry in Erdgeschoss is no longer a placeholder.
+    t = t.replace(
+        "            primary: Juli\n            secondary: Wird eingerichtet\n",
+        "            primary: Juli\n            secondary: Fernseher\n",
+    )
+
+    # Juli-Zimmer gets the same native iOS media card pattern as Mika.
+    t = t.replace(JULI_PLACEHOLDER, JULI_TV)
+
+    if t != original:
+        path.write_text(t)
+        return f"yaml patched {path.name}"
+    return f"yaml ok {path.name}"
 
 
 def patch_js(path: Path) -> str:
@@ -118,7 +164,7 @@ html[data-panel=\"admin\"] ha-drawer {
 
 
 def main() -> None:
-    log = [strip_tv(p) for p in YAML_PATHS] + [patch_js(p) for p in JS_PATHS]
+    log = [patch_yaml(p) for p in YAML_PATHS] + [patch_js(p) for p in JS_PATHS]
     print(f"apply_updates {VERSION}")
     print("\n".join(log))
 
