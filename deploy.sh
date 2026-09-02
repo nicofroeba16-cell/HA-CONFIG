@@ -1,5 +1,5 @@
 #!/bin/bash
-# HA-CONFIG deploy v1.9.22 — fuenf Dateien, TV-Strip, kein configuration.yaml, kein restart
+# HA-CONFIG deploy v1.9.23 — Dashboards Juli/Mika/Gabi + configuration.yaml
 set -euo pipefail
 log() { echo "[deploy] $*"; }
 
@@ -9,11 +9,16 @@ git -C /config fetch origin main
 
 log "checkout"
 git -C /config checkout origin/main -- \
-  deploy.sh zuhause.yaml timo.yaml apple.yaml apple-optik.js themes/apple.yaml
+  deploy.sh configuration.yaml zuhause.yaml timo.yaml apple.yaml apple-optik.js themes/apple.yaml \
+  dashboards/zuhause.yaml dashboards/timo.yaml dashboards/juli.yaml dashboards/mika.yaml dashboards/gabi.yaml
 
 need() { [ -f "$1" ] || { log "fehlt $1"; exit 1; }; }
-need /config/zuhause.yaml
-need /config/timo.yaml
+need /config/configuration.yaml
+need /config/dashboards/zuhause.yaml
+need /config/dashboards/timo.yaml
+need /config/dashboards/juli.yaml
+need /config/dashboards/mika.yaml
+need /config/dashboards/gabi.yaml
 need /config/apple.yaml
 need /config/apple-optik.js
 need /config/deploy.sh
@@ -38,8 +43,8 @@ strip_tv() {
   mv "$f.tmp" "$f"
 }
 
-strip_tv /config/zuhause.yaml
-strip_tv /config/timo.yaml
+strip_tv /config/dashboards/zuhause.yaml
+strip_tv /config/dashboards/timo.yaml
 
 copy_one() {
   src="$1"; dst="$2"
@@ -61,4 +66,6 @@ fi
 
 log "ha core check"
 ha core check
-log "OK v1.9.22"
+log "restart Home Assistant"
+ha core restart
+log "OK v1.9.23"
