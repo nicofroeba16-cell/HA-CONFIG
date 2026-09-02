@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate Juli/Mika/Gabi dashboards from the Timo dashboard master.
+"""Generate Timo/Juli/Mika/Gabi as exact Zuhause clones except navbar.
 
-All views, sections, cards, entities and actions are inherited from
-`dashboards/timo.yaml`. Only dashboard identity, navbar configuration and
-internal dashboard URL prefixes are changed.
+`dashboards/zuhause.yaml` is the only content master. The complete `views:`
+block is inherited unchanged. Only the navbar definition and navbar template
+references are personalized.
 """
 from __future__ import annotations
 
@@ -12,11 +12,20 @@ from pathlib import Path
 
 ROOT = Path(os.environ.get("HA_CONFIG_ROOT", "/config"))
 DASHBOARDS = ROOT / "dashboards"
-MASTER = DASHBOARDS / "timo.yaml"
+MASTER = DASHBOARDS / "zuhause.yaml"
 
 PROFILES = {
+    "timo": {
+        "template": "timo_nav",
+        "routes": [
+            ("mdi:home-floor-1", "timo-zimmer", "Timo"),
+            ("mdi:home-variant", "huette", "Hütte"),
+            ("mdi:home", "haus", "Home"),
+            ("mdi:tree", "aussenbereich", "Außen"),
+            ("mdi:server-network", "system", "System"),
+        ],
+    },
     "juli": {
-        "title": "Zuhause Juli",
         "template": "juli_nav",
         "routes": [
             ("mdi:television-classic", "juli-zimmer", "Juli"),
@@ -25,7 +34,6 @@ PROFILES = {
         ],
     },
     "mika": {
-        "title": "Zuhause Mika",
         "template": "mika_nav",
         "routes": [
             ("mdi:television", "mika-zimmer", "Mika Zimmer"),
@@ -34,7 +42,6 @@ PROFILES = {
         ],
     },
     "gabi": {
-        "title": "Zuhause Gabi",
         "template": "gabi_nav",
         "routes": [
             ("mdi:sofa", "wohnzimmer", "Wohnzimmer"),
@@ -49,19 +56,18 @@ def master_parts() -> tuple[str, str]:
     text = MASTER.read_text(encoding="utf-8")
     marker = "views:\n"
     if marker not in text:
-        raise RuntimeError("Timo master has no views block")
+        raise RuntimeError("Zuhause master has no views block")
     header, views = text.split(marker, 1)
-
     style_marker = "    styles: |\n"
     if style_marker not in header:
-        raise RuntimeError("Timo master navbar has no styles block")
+        raise RuntimeError("Zuhause master navbar has no styles block")
     _before_styles, styles = header.split(style_marker, 1)
     return style_marker + styles, marker + views
 
 
 def navbar(profile: str, data: dict, styles: str) -> str:
     lines = [
-        f"title: {data['title']}",
+        "title: Zuhause",
         "navbar-templates:",
         f"  {data['template']}:",
         "    desktop:",
@@ -78,19 +84,17 @@ def navbar(profile: str, data: dict, styles: str) -> str:
         "    routes:",
     ]
     for icon, view, label in data["routes"]:
-        lines.extend(
-            [
-                f"      - icon: {icon}",
-                f"        url: /dashboard-{profile}/{view}",
-                f"        label: {label}",
-            ]
-        )
+        lines.extend([
+            f"      - icon: {icon}",
+            f"        url: /dashboard-{profile}/{view}",
+            f"        label: {label}",
+        ])
     return "\n".join(lines) + "\n" + styles
 
 
 def render(profile: str, data: dict, styles: str, views: str) -> str:
-    body = views.replace("/dashboard-timo/", f"/dashboard-{profile}/")
-    body = body.replace("template: timo_nav", f"template: {data['template']}")
+    # Keep Zuhause views byte-for-byte except navbar template references.
+    body = views.replace("template: zuhause_nav", f"template: {data['template']}")
     return navbar(profile, data, styles) + body
 
 
