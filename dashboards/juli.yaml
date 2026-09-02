@@ -1,0 +1,186 @@
+title: Zuhause Juli
+navbar-templates:
+  juli_nav:
+    desktop:
+      position: bottom
+      show_labels: true
+    mobile:
+      show_labels: true
+      mode: floating
+    layout:
+      auto_padding:
+        enabled: true
+        desktop_px: 160
+        mobile_px: 224
+    routes:
+      - icon: mdi:television-classic
+        url: /dashboard-juli/juli-zimmer
+        label: Juli
+      - icon: mdi:home
+        url: /dashboard-juli/haus
+        label: Home
+      - icon: mdi:sofa
+        url: /dashboard-juli/wohnzimmer
+        label: Wohnzimmer
+    styles: |
+      :host {
+        --navbar-primary-color: var(--apple-gold, #e8b57a);
+      }
+
+      .navbar.mobile {
+        --navbar-left-margin: 0px;
+      }
+
+      .navbar.mobile,
+      .navbar.mobile.floating {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile ha-card,
+      ha-card.navbar-card.mobile,
+      ha-card.navbar-card.mobile.floating,
+      .navbar-card.mobile,
+      .navbar-card.mobile.floating {
+        display: flex !important;
+        justify-content: stretch !important;
+        align-items: stretch !important;
+        gap: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        margin-bottom: 0 !important;
+        transform: none !important;
+        padding: 6px 8px !important;
+        border-radius: 28px !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile .route,
+      .navbar-card.mobile .route {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+
+      .navbar.mobile .button {
+        max-width: none !important;
+        width: 100% !important;
+      }
+
+      .navbar.mobile .label {
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+views:
+  - title: Juli-Zimmer
+    path: juli-zimmer
+    icon: mdi:television-classic
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Juli Zimmer
+            subtitle: Smart-TV
+          - type: custom:mushroom-template-card
+            primary: Noch kein TV
+            secondary: Wird eingerichtet
+            icon: mdi:television-classic
+            icon_color: pink
+            layout: horizontal
+            grid_options:
+              columns: 12
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: juli_nav
+
+  - title: Home
+    path: haus
+    icon: mdi:home
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Zuhause Juli
+            subtitle: Home
+          - type: custom:mushroom-template-card
+            primary: Juli Zimmer
+            secondary: Smart-TV
+            icon: mdi:television-classic
+            icon_color: pink
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-juli/juli-zimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Wohnzimmer
+            secondary: Fire TV
+            icon: mdi:sofa
+            icon_color: amber
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-juli/wohnzimmer
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: juli_nav
+
+  - title: Wohnzimmer
+    path: wohnzimmer
+    icon: mdi:sofa
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Wohnzimmer
+            subtitle: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_fire_tv
+            name: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_firetv_television
+            name: Fernseher
+          - type: custom:mushroom-chips-card
+            alignment: center
+            chips:
+              - type: entity
+                entity: switch.wohnzimmer_wohnzimmer_firetv_mute
+                icon: mdi:volume-off
+                tap_action:
+                  action: toggle
+              - type: entity
+                entity: remote.wohnzimmer_wohnzimmer_fire_tv
+                icon: mdi:remote
+                tap_action:
+                  action: more-info
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: juli_nav
