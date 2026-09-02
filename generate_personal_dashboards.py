@@ -7,9 +7,10 @@ internal dashboard URL prefixes are changed.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
-ROOT = Path("/config")
+ROOT = Path(os.environ.get("HA_CONFIG_ROOT", "/config"))
 DASHBOARDS = ROOT / "dashboards"
 MASTER = DASHBOARDS / "timo.yaml"
 
@@ -88,8 +89,6 @@ def navbar(profile: str, data: dict, styles: str) -> str:
 
 
 def render(profile: str, data: dict, styles: str, views: str) -> str:
-    # The complete Timo views block stays unchanged except for references that
-    # must point to the dashboard currently being rendered.
     body = views.replace("/dashboard-timo/", f"/dashboard-{profile}/")
     body = body.replace("template: timo_nav", f"template: {data['template']}")
     return navbar(profile, data, styles) + body
