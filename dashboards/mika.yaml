@@ -1,0 +1,173 @@
+title: Zuhause Mika
+navbar-templates:
+  mika_nav:
+    desktop:
+      position: bottom
+      show_labels: true
+    mobile:
+      show_labels: true
+      mode: floating
+    layout:
+      auto_padding:
+        enabled: true
+        desktop_px: 160
+        mobile_px: 224
+    routes:
+      - icon: mdi:television
+        url: /dashboard-mika/mika-zimmer
+        label: Mika Zimmer
+      - icon: mdi:home
+        url: /dashboard-mika/haus
+        label: Home
+      - icon: mdi:play-box-multiple
+        url: /dashboard-mika/medien
+        label: Medien
+    styles: |
+      :host {
+        --navbar-primary-color: var(--apple-gold, #e8b57a);
+      }
+
+      .navbar.mobile {
+        --navbar-left-margin: 0px;
+      }
+
+      .navbar.mobile,
+      .navbar.mobile.floating {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile ha-card,
+      ha-card.navbar-card.mobile,
+      ha-card.navbar-card.mobile.floating,
+      .navbar-card.mobile,
+      .navbar-card.mobile.floating {
+        display: flex !important;
+        justify-content: stretch !important;
+        align-items: stretch !important;
+        gap: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        margin-bottom: 0 !important;
+        transform: none !important;
+        padding: 6px 8px !important;
+        border-radius: 28px !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile .route,
+      .navbar-card.mobile .route {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+
+      .navbar.mobile .button {
+        max-width: none !important;
+        width: 100% !important;
+      }
+
+      .navbar.mobile .label {
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+views:
+  - title: Mika-Zimmer
+    path: mika-zimmer
+    icon: mdi:television
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Mika Zimmer
+            subtitle: Fernseher
+          - type: custom:ios-media-player
+            entity: media_player.fire_tv_192_168_178_54
+            name: Mika Fernseher
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: mika_nav
+
+  - title: Home
+    path: haus
+    icon: mdi:home
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Zuhause Mika
+            subtitle: Home
+          - type: custom:mushroom-template-card
+            primary: Mika Zimmer
+            secondary: Fernseher
+            icon: mdi:television
+            icon_color: blue
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-mika/mika-zimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Medien
+            secondary: Fire TV · Wohnzimmer
+            icon: mdi:play-box-multiple
+            icon_color: indigo
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-mika/medien
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: mika_nav
+
+  - title: Medien
+    path: medien
+    icon: mdi:play-box-multiple
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Mika Medien
+            subtitle: Fernseher
+          - type: custom:ios-media-player
+            entity: media_player.fire_tv_192_168_178_54
+            name: Mika Fernseher
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Wohnzimmer
+            subtitle: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_fire_tv
+            name: Wohnzimmer Fire TV
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: mika_nav
