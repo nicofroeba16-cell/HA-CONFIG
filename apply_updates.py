@@ -4,8 +4,8 @@ from pathlib import Path
 import re
 
 VERSION = "1.9.23"
-DASHBOARD_RE = r"/(?:dashboard-(?:x|timo|juli|mika|gabi))(?:/|$)"
-VIEW_RE = r"/(?:dashboard-(?:x|timo|juli|mika|gabi))/([^/?]+)"
+DASHBOARD_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)"
+VIEW_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)\/([^\/?]+)"
 
 TV = (
     "          - type: custom:ios-media-player\n"
@@ -86,24 +86,30 @@ html[data-panel=\"admin\"] ha-drawer {
         t = t.replace(old_bg, new_bg, 1)
 
     # Add route tracking once. This makes all five YAML dashboards receive
-    # data-panel=\"dash\" and keeps the per-view color washes working.
+    # data-panel="dash" and keeps the per-view color washes working.
     if "function markPanelAndView()" not in t:
         marker = "function boot() {"
-        tracker = f'''function markPanelAndView() {{\n  try {{\n    const p = location.pathname || \"\";\n    const dash = /{DASHBOARD_RE.replace('/', r'\\/')}/.test(p);\n    document.documentElement.setAttribute(\"data-panel\", dash ? \"dash\" : \"admin\");\n    const m = p.match(/{VIEW_RE.replace('/', r'\\/')}/);\n    if (m && m[1]) document.documentElement.setAttribute(\"data-view\", m[1]);\n    else document.documentElement.removeAttribute(\"data-view\");\n  }} catch (_e) {{}}\n}}\n\n'''
+        tracker = f'''function markPanelAndView() {{\n  try {{\n    const p = location.pathname || \"\";\n    const dash = /{DASHBOARD_JS}/.test(p);\n    document.documentElement.setAttribute(\"data-panel\", dash ? \"dash\" : \"admin\");\n    const m = p.match(/{VIEW_JS}/);\n    if (m && m[1]) document.documentElement.setAttribute(\"data-view\", m[1]);\n    else document.documentElement.removeAttribute(\"data-view\");\n  }} catch (_e) {{}}\n}}\n\n'''
         if marker in t:
             t = t.replace(marker, tracker + marker, 1)
 
-    # Ensure tracking runs at boot and on HA route changes.
     if "markPanelAndView();\n  document.documentElement.style.colorScheme" not in t:
         t = t.replace(
             "function boot() {\n  document.documentElement.style.colorScheme",
             "function boot() {\n  markPanelAndView();\n  document.documentElement.style.colorScheme",
             1,
         )
-    t = t.replace('window.addEventListener("location-changed", schedule);',
-                  'window.addEventListener("location-changed", () => { markPanelAndView(); schedule(); });', 1)
-    t = t.replace('window.addEventListener("popstate", schedule);',
-                  'window.addEventListener("popstate", () => { markPanelAndView(); schedule(); });', 1)
+
+    t = t.replace(
+        'window.addEventListener("location-changed", schedule);',
+        'window.addEventListener("location-changed", () => { markPanelAndView(); schedule(); });',
+        1,
+    )
+    t = t.replace(
+        'window.addEventListener("popstate", schedule);',
+        'window.addEventListener("popstate", () => { markPanelAndView(); schedule(); });',
+        1,
+    )
 
     if t != original:
         path.write_text(t)
