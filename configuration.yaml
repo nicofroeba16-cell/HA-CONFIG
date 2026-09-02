@@ -24,6 +24,21 @@ lovelace:
       title: Timo
       show_in_sidebar: false
       filename: dashboards/timo.yaml
+    dashboard-juli:
+      mode: yaml
+      title: Juli
+      show_in_sidebar: false
+      filename: dashboards/juli.yaml
+    dashboard-mika:
+      mode: yaml
+      title: Mika
+      show_in_sidebar: false
+      filename: dashboards/mika.yaml
+    dashboard-gabi:
+      mode: yaml
+      title: Gabi
+      show_in_sidebar: false
+      filename: dashboards/gabi.yaml
 
 
 automation: !include automations.yaml
