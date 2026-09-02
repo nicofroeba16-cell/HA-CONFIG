@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.23";
+const VERSION = "1.9.18";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -31,8 +31,8 @@ html {
   --apple-ease-snap: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-html[data-panel="dash"]::before,
-html[data-panel="dash"]::after {
+html::before,
+html::after {
   content: "";
   position: fixed;
   inset: 0;
@@ -41,54 +41,37 @@ html[data-panel="dash"]::after {
   transform-origin: 50% 0;
   background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
 }
-html[data-panel="dash"]::before {
+html::before {
   opacity: var(--apple-wash-cur-opacity, 1);
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 }
-html[data-panel="dash"]::after {
+html::after {
   opacity: var(--apple-wash-next-opacity, 0);
   -webkit-transform: translate3d(0, 0, 0) scale(var(--apple-wash-scale, 1));
   transform: translate3d(0, 0, 0) scale(var(--apple-wash-scale, 1));
 }
-html[data-panel="dash"].apple-wash-animating::before {
+html.apple-wash-animating::before {
   transition: opacity 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
-html[data-panel="dash"].apple-wash-animating::after {
+html.apple-wash-animating::after {
   transition: opacity 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 @media (prefers-reduced-motion: no-preference) {
-  html[data-panel="dash"].apple-wash-animating::after {
+  html.apple-wash-animating::after {
     transition: opacity 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1)),
                 transform 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1)),
                 -webkit-transform 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1));
   }
 }
-html[data-panel="dash"].apple-wash-animating::before,
-html[data-panel="dash"].apple-wash-animating::after {
+html.apple-wash-animating::before,
+html.apple-wash-animating::after {
   will-change: opacity;
 }
 
-html[data-panel="dash"],
-html[data-panel="dash"] body,
-html[data-panel="dash"] home-assistant,
-html[data-panel="dash"] ha-app-layout,
-html[data-panel="dash"] ha-drawer,
-html[data-panel="dash"] hui-root,
-html[data-panel="dash"] hui-view,
-html[data-panel="dash"] hui-sections-view,
-html[data-panel="dash"] #view,
-html[data-panel="dash"] hui-view-background {
+html, body, home-assistant, ha-app-layout, ha-drawer,
+hui-view, hui-sections-view, #view, hui-view-background {
   background: transparent !important;
-  background-color: transparent !important;
-}
-
-html[data-panel="admin"],
-html[data-panel="admin"] body,
-html[data-panel="admin"] home-assistant,
-html[data-panel="admin"] ha-app-layout,
-html[data-panel="admin"] ha-drawer {
-  background: var(--primary-background-color, #111) !important;
 }
 
 home-assistant, ha-app-layout, hui-view, hui-sections-view {
@@ -461,8 +444,8 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
     -webkit-transform: none;
     transform: none;
   }
-  html[data-panel="dash"]::before,
-  html[data-panel="dash"]::after {
+  html::before,
+  html::after {
     transition: opacity 0.01s linear !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
@@ -486,7 +469,7 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
   ha-card {
     border-color: rgba(255, 255, 255, 0.55) !important;
   }
-  html[data-panel="dash"]::before { filter: saturate(0.7); }
+  html::before { filter: saturate(0.7); }
   .navbar.mobile .button.active,
   .navbar.mobile .icon.active,
   .navbar.mobile .button.active .icon {
@@ -505,27 +488,6 @@ const SHADOW_CSS = `
   --shape-color: rgb(var(--rgb-state, 10, 132, 255));
   color-scheme: light dark;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
-}
-:host(hui-root),
-:host(hui-view),
-:host(hui-sections-view),
-:host(hui-view-background),
-hui-root,
-hui-view,
-hui-sections-view,
-#view,
-hui-view-background {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-}
-:host(hui-view-background)::before,
-:host(hui-view-background)::after,
-hui-view-background::before,
-hui-view-background::after {
-  content: none !important;
-  display: none !important;
-  background: none !important;
 }
 ha-card {
   background: var(--ha-card-background, var(--apple-surface, #1c1c1e)) !important;
@@ -653,11 +615,6 @@ function applyStyle(root, css, id) {
 const painted = new WeakSet();
 
 function styleHost(node) {
-  if (node.localName === "hui-view-background") {
-    node.style.setProperty("background", "transparent", "important");
-    node.style.setProperty("background-color", "transparent", "important");
-    node.style.setProperty("background-image", "none", "important");
-  }
   const sr = node.shadowRoot;
   if (!sr) return;
   if (!painted.has(sr)) {
@@ -785,7 +742,6 @@ if (document.readyState === "loading") {
 
 customElements.whenDefined("home-assistant").then(schedule);
 customElements.whenDefined("hui-view").then(schedule);
-customElements.whenDefined("hui-view-background").then(schedule);
 
 })();
 
@@ -1779,12 +1735,6 @@ console.info(
 (function () {
   let last = "";
   let gen = 0;
-  function markPanel(root) {
-    const path = location.pathname || "";
-    const dashboard = /\/dashboard-(?:x|timo)(?:\/|$)/.test(path);
-    root.setAttribute("data-panel", dashboard ? "dash" : "admin");
-    return dashboard;
-  }
   function snapWash(root, view) {
     root.classList.remove("apple-wash-animating");
     root.setAttribute("data-view", view);
@@ -1796,21 +1746,12 @@ console.info(
   }
   function setView() {
     try {
-      const root = document.documentElement;
-      if (!markPanel(root)) {
-        last = "";
-        gen += 1;
-        root.classList.remove("apple-wash-animating");
-        root.removeAttribute("data-view");
-        root.removeAttribute("data-view-next");
-        if (document.body) document.body.removeAttribute("data-view");
-        return;
-      }
       const m = (location.pathname || "").match(/\/dashboard-(?:x|timo)\/([^\/\?]+)/);
       const view = m ? m[1] : "haus";
       if (view === last) return;
       const prev = last;
       last = view;
+      const root = document.documentElement;
       const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduce || !prev) {
         snapWash(root, view);
