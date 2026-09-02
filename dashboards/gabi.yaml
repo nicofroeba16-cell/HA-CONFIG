@@ -1,0 +1,229 @@
+title: Zuhause Gabi
+navbar-templates:
+  gabi_nav:
+    desktop:
+      position: bottom
+      show_labels: true
+    mobile:
+      show_labels: true
+      mode: floating
+    layout:
+      auto_padding:
+        enabled: true
+        desktop_px: 160
+        mobile_px: 224
+    routes:
+      - icon: mdi:sofa
+        url: /dashboard-gabi/wohnzimmer
+        label: Wohnzimmer
+      - icon: mdi:home
+        url: /dashboard-gabi/haus
+        label: Home
+      - icon: mdi:door
+        url: /dashboard-gabi/flur
+        label: Flur
+    styles: |
+      :host {
+        --navbar-primary-color: var(--apple-gold, #e8b57a);
+      }
+
+      .navbar.mobile {
+        --navbar-left-margin: 0px;
+      }
+
+      .navbar.mobile,
+      .navbar.mobile.floating {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile ha-card,
+      ha-card.navbar-card.mobile,
+      ha-card.navbar-card.mobile.floating,
+      .navbar-card.mobile,
+      .navbar-card.mobile.floating {
+        display: flex !important;
+        justify-content: stretch !important;
+        align-items: stretch !important;
+        gap: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        margin-bottom: 0 !important;
+        transform: none !important;
+        padding: 6px 8px !important;
+        border-radius: 28px !important;
+        box-sizing: border-box !important;
+      }
+
+      .navbar.mobile .route,
+      .navbar-card.mobile .route {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        width: auto !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+
+      .navbar.mobile .button {
+        max-width: none !important;
+        width: 100% !important;
+      }
+
+      .navbar.mobile .label {
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+views:
+  - title: Wohnzimmer
+    path: wohnzimmer
+    icon: mdi:sofa
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Wohnzimmer
+            subtitle: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_fire_tv
+            name: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_firetv_television
+            name: Fernseher
+          - type: custom:mushroom-chips-card
+            alignment: center
+            chips:
+              - type: entity
+                entity: switch.wohnzimmer_wohnzimmer_firetv_mute
+                icon: mdi:volume-off
+                tap_action:
+                  action: toggle
+              - type: entity
+                entity: remote.wohnzimmer_wohnzimmer_fire_tv
+                icon: mdi:remote
+                tap_action:
+                  action: more-info
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: gabi_nav
+
+  - title: Home
+    path: haus
+    icon: mdi:home
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Zuhause Gabi
+            subtitle: Home
+          - type: custom:mushroom-template-card
+            primary: Wohnzimmer
+            secondary: Fire TV
+            icon: mdi:sofa
+            icon_color: amber
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-gabi/wohnzimmer
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Flur
+            secondary: Drucker
+            icon: mdi:door
+            icon_color: grey
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-gabi/flur
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: gabi_nav
+
+  - title: Flur
+    path: flur
+    icon: mdi:door
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Flur
+            subtitle: Brother HL-L3210CW
+          - type: custom:mushroom-template-card
+            primary: Druckerstatus
+            secondary: >-
+              {% set s = states('sensor.hl_l3210cw_status') %} {{ s if s not in
+              ['unknown','unavailable','none'] else 'Unbekannt' }}
+            icon: mdi:printer
+            icon_color: >-
+              {% set s = states('sensor.hl_l3210cw_status') | lower %} {% if
+              'error' in s or 'fehler' in s or 'offline' in s %}
+                red
+              {% elif 'bereit' in s or 'idle' in s or 'ready' in s %}
+                green
+              {% else %}
+                orange
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Schwarz
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_schwarz_toner') %}
+              {{ a if a not in ['unknown','unavailable','none'] else '--' }} %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_schwarz_toner') | float(-1) %}
+              {{ 'grey' if a < 0 else ('grey' if a >= 15 else 'red') }}
+          - type: custom:mushroom-template-card
+            primary: Cyan
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_cyan_toner') %}
+              {{ a if a not in ['unknown','unavailable','none'] else '--' }} %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_cyan_toner') | float(-1) %}
+              {{ 'grey' if a < 0 else ('cyan' if a >= 15 else 'red') }}
+          - type: custom:mushroom-template-card
+            primary: Magenta
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_magenta_toner') %}
+              {{ a if a not in ['unknown','unavailable','none'] else '--' }} %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_magenta_toner') | float(-1) %}
+              {{ 'grey' if a < 0 else ('purple' if a >= 15 else 'red') }}
+          - type: custom:mushroom-template-card
+            primary: Gelb
+            secondary: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_gelb_toner') %}
+              {{ a if a not in ['unknown','unavailable','none'] else '--' }} %
+            icon: mdi:water
+            icon_color: >-
+              {% set a = states('sensor.hl_l3210cw_verbleibender_gelb_toner') | float(-1) %}
+              {{ 'grey' if a < 0 else ('amber' if a >= 15 else 'red') }}
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: gabi_nav
