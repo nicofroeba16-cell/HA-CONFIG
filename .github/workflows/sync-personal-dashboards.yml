@@ -1,0 +1,35 @@
+name: Sync personal dashboards
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - dashboards/timo.yaml
+      - generate_personal_dashboards.py
+      - .github/workflows/sync-personal-dashboards.yml
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate personal dashboards
+        env:
+          HA_CONFIG_ROOT: ${{ github.workspace }}
+        run: python3 generate_personal_dashboards.py
+      - name: Commit generated dashboards
+        run: |
+          if git diff --quiet -- dashboards/juli.yaml dashboards/mika.yaml dashboards/gabi.yaml; then
+            echo "Personal dashboards already match Timo master"
+            exit 0
+          fi
+          git config user.name "HA Dashboard Generator"
+          git config user.email "ha-dashboard-generator@users.noreply.github.com"
+          git add dashboards/juli.yaml dashboards/mika.yaml dashboards/gabi.yaml
+          git commit -m "chore: sync personal dashboards to Timo master"
+          git push origin main
