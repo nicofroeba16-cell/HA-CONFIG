@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Generate Timo/Juli/Mika/Gabi as exact Zuhause clones except navbar.
+"""Generate Timo/Juli/Mika/Gabi from the Zuhause dashboard master.
 
-`dashboards/zuhause.yaml` is the only content master. The complete `views:`
-block is inherited unchanged. Only the navbar definition and navbar template
-references are personalized.
+`dashboards/zuhause.yaml` is the only content master. Views, sections, cards,
+entities, labels and actions stay identical. Only dashboard-local navigation
+references are rewritten so each clone remains inside its own dashboard and
+uses its own navbar.
 """
 from __future__ import annotations
 
@@ -93,8 +94,9 @@ def navbar(profile: str, data: dict, styles: str) -> str:
 
 
 def render(profile: str, data: dict, styles: str, views: str) -> str:
-    # Keep Zuhause views byte-for-byte except navbar template references.
+    # Content stays identical to Zuhause. Only navigation context is localized.
     body = views.replace("template: zuhause_nav", f"template: {data['template']}")
+    body = body.replace("/dashboard-x/", f"/dashboard-{profile}/")
     return navbar(profile, data, styles) + body
 
 
