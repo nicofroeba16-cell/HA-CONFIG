@@ -1,5 +1,5 @@
 #!/bin/bash
-# HA-CONFIG deploy v1.9.22 — fuenf Dateien, TV-Strip, kein configuration.yaml, kein restart
+# HA-CONFIG deploy v1.9.23 — Gradient-Fix, TV-Strip, kein configuration.yaml, kein restart
 set -euo pipefail
 log() { echo "[deploy] $*"; }
 
@@ -53,12 +53,19 @@ copy_one /config/apple.yaml /config/themes/apple.yaml
 copy_one /config/apple-optik.js /config/www/apple-optik.js
 
 js=/config/www/apple-optik.js
-if ! grep -q 'html\[data-panel="dash"\]::before' "$js"; then
-  log "scope wash to dashboards"
-  sed -i -e 's/^html::before/html[data-panel="dash"]::before/g' \
-         -e 's/^html::after/html[data-panel="dash"]::after/g' "$js"
-fi
+grep -q 'const VERSION = "1.9.23"' "$js" || {
+  log "falsche Apple-Optik-Version"
+  exit 1
+}
+grep -q 'html\[data-panel="dash"\]::before' "$js" || {
+  log "Dashboard-Gradient ist nicht korrekt begrenzt"
+  exit 1
+}
+grep -q 'node.localName === "hui-view-background"' "$js" || {
+  log "HUI-VIEW-BACKGROUND-Patch fehlt"
+  exit 1
+}
 
 log "ha core check"
 ha core check
-log "OK v1.9.22"
+log "OK v1.9.23"
