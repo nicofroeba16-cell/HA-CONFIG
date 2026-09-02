@@ -119,7 +119,7 @@ views:
                   else 'red' }}
                 tap_action:
                   action: navigate
-                  navigation_path: /dashboard-x/system
+                  navigation_path: /dashboard-timo/system
               - type: template
                 content: >-
                   {% set t = states('sensor.vertical_pool_heat_pump_temperatur')
@@ -128,7 +128,7 @@ views:
                 icon_color: cyan
                 tap_action:
                   action: navigate
-                  navigation_path: /dashboard-x/aussenbereich
+                  navigation_path: /dashboard-timo/aussenbereich
               - type: template
                 content: >-
                   {% set a = states('sensor.rasen_mahroboter_akku') %} Mäher {{
@@ -149,7 +149,7 @@ views:
                   {% endif %}
                 tap_action:
                   action: navigate
-                  navigation_path: /dashboard-x/aussenbereich
+                  navigation_path: /dashboard-timo/aussenbereich
       - type: grid
         cards:
           - type: custom:mushroom-title-card
@@ -163,7 +163,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/nico-zimmer
+              navigation_path: /dashboard-timo/nico-zimmer
             grid_options:
               columns: 6
               rows: auto
@@ -175,7 +175,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/timo-zimmer
+              navigation_path: /dashboard-timo/timo-zimmer
             grid_options:
               columns: 6
               rows: auto
@@ -187,7 +187,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/huette
+              navigation_path: /dashboard-timo/huette
             grid_options:
               columns: 6
               rows: auto
@@ -201,7 +201,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/aussenbereich
+              navigation_path: /dashboard-timo/aussenbereich
             grid_options:
               columns: 6
               rows: auto
@@ -213,7 +213,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/erdgeschoss
+              navigation_path: /dashboard-timo/erdgeschoss
             grid_options:
               columns: 6
               rows: auto
@@ -229,7 +229,7 @@ views:
             icon_color: teal
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/system
+              navigation_path: /dashboard-timo/system
             grid_options:
               columns: 6
               rows: auto
@@ -247,7 +247,7 @@ views:
               int(0) > 0 else 'green' }}
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/system-warnungen
+              navigation_path: /dashboard-timo/system-warnungen
             grid_options:
               columns: 6
               rows: auto
@@ -258,7 +258,7 @@ views:
             icon_color: indigo
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/mobilgeraete
+              navigation_path: /dashboard-timo/mobilgeraete
             grid_options:
               columns: 6
               rows: auto
@@ -270,7 +270,7 @@ views:
     path: mobilgeraete
     icon: mdi:cellphone
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -466,7 +466,7 @@ views:
     path: nico-zimmer
     icon: mdi:home-floor-negative-1
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -609,7 +609,7 @@ views:
     path: medien
     icon: mdi:television
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -695,7 +695,7 @@ views:
     path: system
     icon: mdi:server-network
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -862,7 +862,7 @@ views:
               0 else 'green' }}
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/system-warnungen
+              navigation_path: /dashboard-timo/system-warnungen
       - type: grid
         cards:
           - type: custom:navbar-card
@@ -871,7 +871,7 @@ views:
     path: system-warnungen
     icon: mdi:alert-circle
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1087,7 +1087,7 @@ views:
     path: timo-zimmer
     icon: mdi:home-floor-1
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1155,7 +1155,7 @@ views:
     path: huette
     icon: mdi:home-variant
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1238,7 +1238,7 @@ views:
     path: aussenbereich
     icon: mdi:tree
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1359,7 +1359,7 @@ views:
     path: erdgeschoss
     icon: mdi:home-floor-0
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1376,7 +1376,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/mika-zimmer
+              navigation_path: /dashboard-timo/mika-zimmer
             grid_options:
               columns: 6
               rows: auto
@@ -1388,7 +1388,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/juli-zimmer
+              navigation_path: /dashboard-timo/juli-zimmer
             grid_options:
               columns: 6
               rows: auto
@@ -1400,7 +1400,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/flur
+              navigation_path: /dashboard-timo/flur
             grid_options:
               columns: 6
               rows: auto
@@ -1412,7 +1412,7 @@ views:
             vertical: true
             tap_action:
               action: navigate
-              navigation_path: /dashboard-x/wohnzimmer
+              navigation_path: /dashboard-timo/wohnzimmer
             grid_options:
               columns: 6
               rows: auto
@@ -1424,7 +1424,7 @@ views:
     path: mika-zimmer
     icon: mdi:television
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1445,7 +1445,7 @@ views:
     path: juli-zimmer
     icon: mdi:television-classic
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1471,7 +1471,7 @@ views:
     path: flur
     icon: mdi:door
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
@@ -1546,7 +1546,7 @@ views:
     path: wohnzimmer
     icon: mdi:sofa
     subview: true
-    back_path: /dashboard-x/haus
+    back_path: /dashboard-timo/haus
     type: sections
     max_columns: 2
     sections:
