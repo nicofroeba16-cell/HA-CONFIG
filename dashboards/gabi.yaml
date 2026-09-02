@@ -1,6 +1,6 @@
-title: Zuhause Gabi
+title: Zuhause
 navbar-templates:
-  gabi_nav:
+  personal_nav:
     desktop:
       position: bottom
       show_labels: true
@@ -26,11 +26,7 @@ navbar-templates:
       :host {
         --navbar-primary-color: var(--apple-gold, #e8b57a);
       }
-
-      .navbar.mobile {
-        --navbar-left-margin: 0px;
-      }
-
+      .navbar.mobile { --navbar-left-margin: 0px; }
       .navbar.mobile,
       .navbar.mobile.floating {
         position: fixed !important;
@@ -45,7 +41,6 @@ navbar-templates:
         padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
         box-sizing: border-box !important;
       }
-
       .navbar.mobile ha-card,
       ha-card.navbar-card.mobile,
       ha-card.navbar-card.mobile.floating,
@@ -64,7 +59,6 @@ navbar-templates:
         border-radius: 28px !important;
         box-sizing: border-box !important;
       }
-
       .navbar.mobile .route,
       .navbar-card.mobile .route {
         flex: 1 1 0 !important;
@@ -74,20 +68,143 @@ navbar-templates:
         display: flex !important;
         justify-content: center !important;
       }
-
       .navbar.mobile .button {
         max-width: none !important;
         width: 100% !important;
       }
-
       .navbar.mobile .label {
         margin-top: 2px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-
 views:
+  - title: Home
+    path: haus
+    icon: mdi:home
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Zuhause
+            subtitle: Erdgeschoss
+          - type: custom:mushroom-template-card
+            primary: Juli Zimmer
+            secondary: Smart-TV · wird eingerichtet
+            icon: mdi:television-classic
+            icon_color: pink
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Mika Zimmer
+            secondary: Fernseher
+            icon: mdi:television
+            icon_color: blue
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Medien
+            secondary: Mika · Wohnzimmer
+            icon: mdi:play-box-multiple
+            icon_color: indigo
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Wohnzimmer
+            secondary: Fire TV
+            icon: mdi:sofa
+            icon_color: amber
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: custom:mushroom-template-card
+            primary: Flur
+            secondary: Brother HL-L3210CW
+            icon: mdi:door
+            icon_color: grey
+            grid_options:
+              columns: 6
+              rows: auto
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: personal_nav
+
+  - title: Juli-Zimmer
+    path: juli-zimmer
+    icon: mdi:television-classic
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Juli Zimmer
+            subtitle: Smart-TV
+          - type: custom:mushroom-template-card
+            primary: Noch kein TV
+            secondary: Wird eingerichtet
+            icon: mdi:television-classic
+            icon_color: pink
+            layout: horizontal
+            grid_options:
+              columns: 12
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: personal_nav
+
+  - title: Mika-Zimmer
+    path: mika-zimmer
+    icon: mdi:television
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Mika Zimmer
+            subtitle: Fernseher
+          - type: custom:ios-media-player
+            entity: media_player.fire_tv_192_168_178_54
+            name: Mika Fernseher
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: personal_nav
+
+  - title: Medien
+    path: medien
+    icon: mdi:play-box-multiple
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Mika Medien
+            subtitle: Fernseher
+          - type: custom:ios-media-player
+            entity: media_player.fire_tv_192_168_178_54
+            name: Mika Fernseher
+      - type: grid
+        cards:
+          - type: custom:mushroom-title-card
+            title: Wohnzimmer
+            subtitle: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_fire_tv
+            name: Wohnzimmer Fire TV
+      - type: grid
+        cards:
+          - type: custom:navbar-card
+            template: personal_nav
+
   - title: Wohnzimmer
     path: wohnzimmer
     icon: mdi:sofa
@@ -121,45 +238,7 @@ views:
       - type: grid
         cards:
           - type: custom:navbar-card
-            template: gabi_nav
-
-  - title: Home
-    path: haus
-    icon: mdi:home
-    type: sections
-    max_columns: 2
-    sections:
-      - type: grid
-        cards:
-          - type: custom:mushroom-title-card
-            title: Zuhause Gabi
-            subtitle: Home
-          - type: custom:mushroom-template-card
-            primary: Wohnzimmer
-            secondary: Fire TV
-            icon: mdi:sofa
-            icon_color: amber
-            tap_action:
-              action: navigate
-              navigation_path: /dashboard-gabi/wohnzimmer
-            grid_options:
-              columns: 6
-              rows: auto
-          - type: custom:mushroom-template-card
-            primary: Flur
-            secondary: Drucker
-            icon: mdi:door
-            icon_color: grey
-            tap_action:
-              action: navigate
-              navigation_path: /dashboard-gabi/flur
-            grid_options:
-              columns: 6
-              rows: auto
-      - type: grid
-        cards:
-          - type: custom:navbar-card
-            template: gabi_nav
+            template: personal_nav
 
   - title: Flur
     path: flur
@@ -226,4 +305,4 @@ views:
       - type: grid
         cards:
           - type: custom:navbar-card
-            template: gabi_nav
+            template: personal_nav
