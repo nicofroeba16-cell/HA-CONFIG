@@ -25,6 +25,23 @@ JULI_TV = (
     "            name: Juli Fernseher\n"
 )
 
+JULI_BACKLIGHT = (
+    "          - type: custom:ios-light-card\n"
+    "            entity: light.battletron_gaming_monitor_strip_2024\n"
+    "            name: TV Hintergrund\n"
+)
+
+JULI_GROUPED = (
+    "          - type: custom:mushroom-title-card\n"
+    "            title: Medien\n"
+    "            subtitle: Smart TV\n"
+    + JULI_TV +
+    "          - type: custom:mushroom-title-card\n"
+    "            title: Beleuchtung\n"
+    "            subtitle: TV Hintergrund\n"
+    + JULI_BACKLIGHT
+)
+
 JULI_PLACEHOLDER = (
     "          - type: custom:mushroom-template-card\n"
     "            primary: Noch kein TV\n"
@@ -52,6 +69,31 @@ JS_PATHS = (
 )
 
 
+def patch_juli_room(text: str) -> str:
+    """Normalize Juli-Zimmer to grouped media + lighting without duplicates."""
+    start = text.find("    path: juli-zimmer\n")
+    if start < 0:
+        return text
+    end = text.find("\n  - title:", start + 1)
+    if end < 0:
+        end = len(text)
+
+    room = text[start:end]
+    if "light.battletron_gaming_monitor_strip_2024" in room and "title: Medien" in room and "title: Beleuchtung" in room:
+        return text
+
+    if JULI_PLACEHOLDER in room:
+        room = room.replace(JULI_PLACEHOLDER, JULI_GROUPED, 1)
+    elif JULI_TV in room:
+        # Handles systems where the earlier TV-only runtime patch was already flashed.
+        room = room.replace(JULI_TV, JULI_GROUPED, 1)
+    else:
+        # Fail closed: do not guess another insertion point in an unknown room layout.
+        return text
+
+    return text[:start] + room + text[end:]
+
+
 def patch_yaml(path: Path) -> str:
     if not path.is_file():
         return f"skip yaml {path}"
@@ -73,11 +115,11 @@ def patch_yaml(path: Path) -> str:
     # Juli entry in Erdgeschoss is no longer a placeholder.
     t = t.replace(
         "            primary: Juli\n            secondary: Wird eingerichtet\n",
-        "            primary: Juli\n            secondary: Fernseher\n",
+        "            primary: Juli\n            secondary: Fernseher · TV Hintergrund\n",
     )
 
-    # Juli-Zimmer gets the same native iOS media card pattern as Mika.
-    t = t.replace(JULI_PLACEHOLDER, JULI_TV)
+    # Juli-Zimmer is grouped into Medien and Beleuchtung.
+    t = patch_juli_room(t)
 
     if t != original:
         path.write_text(t)
