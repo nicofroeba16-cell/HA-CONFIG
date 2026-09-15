@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.18";
+const VERSION = "1.9.24";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -31,8 +31,8 @@ html {
   --apple-ease-snap: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-html::before,
-html::after {
+html[data-panel="dash"]::before,
+html[data-panel="dash"]::after {
   content: "";
   position: fixed;
   inset: 0;
@@ -41,37 +41,53 @@ html::after {
   transform-origin: 50% 0;
   background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
 }
-html::before {
+html[data-panel="dash"]::before {
   opacity: var(--apple-wash-cur-opacity, 1);
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
 }
-html::after {
+html[data-panel="dash"]::after {
   opacity: var(--apple-wash-next-opacity, 0);
   -webkit-transform: translate3d(0, 0, 0) scale(var(--apple-wash-scale, 1));
   transform: translate3d(0, 0, 0) scale(var(--apple-wash-scale, 1));
 }
-html.apple-wash-animating::before {
+html[data-panel="dash"].apple-wash-animating::before {
   transition: opacity 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
-html.apple-wash-animating::after {
+html[data-panel="dash"].apple-wash-animating::after {
   transition: opacity 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1));
 }
 @media (prefers-reduced-motion: no-preference) {
-  html.apple-wash-animating::after {
+  html[data-panel="dash"].apple-wash-animating::after {
     transition: opacity 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1)),
                 transform 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1)),
                 -webkit-transform 0.32s var(--apple-ease-wash, cubic-bezier(0.22, 0.61, 0.36, 1));
   }
 }
-html.apple-wash-animating::before,
-html.apple-wash-animating::after {
+html[data-panel="dash"].apple-wash-animating::before,
+html[data-panel="dash"].apple-wash-animating::after {
   will-change: opacity;
 }
 
-html, body, home-assistant, ha-app-layout, ha-drawer,
-hui-view, hui-sections-view, #view, hui-view-background {
+html[data-panel="dash"], html[data-panel="dash"] body,
+html[data-panel="dash"] home-assistant, html[data-panel="dash"] ha-app-layout,
+html[data-panel="dash"] ha-drawer, html[data-panel="dash"] hui-view,
+html[data-panel="dash"] hui-sections-view, html[data-panel="dash"] #view,
+html[data-panel="dash"] hui-view-background {
   background: transparent !important;
+}
+
+html[data-panel="admin"]::before,
+html[data-panel="admin"]::after {
+  content: none !important;
+  display: none !important;
+}
+html[data-panel="admin"],
+html[data-panel="admin"] body,
+html[data-panel="admin"] home-assistant,
+html[data-panel="admin"] ha-app-layout,
+html[data-panel="admin"] ha-drawer {
+  background: var(--primary-background-color, #111) !important;
 }
 
 home-assistant, ha-app-layout, hui-view, hui-sections-view {
@@ -444,8 +460,8 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
     -webkit-transform: none;
     transform: none;
   }
-  html::before,
-  html::after {
+  html[data-panel="dash"]::before,
+  html[data-panel="dash"]::after {
     transition: opacity 0.01s linear !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     transform: translate3d(0, 0, 0) !important;
@@ -469,7 +485,7 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
   ha-card {
     border-color: rgba(255, 255, 255, 0.55) !important;
   }
-  html::before { filter: saturate(0.7); }
+  html[data-panel="dash"]::before { filter: saturate(0.7); }
   .navbar.mobile .button.active,
   .navbar.mobile .icon.active,
   .navbar.mobile .button.active .icon {
@@ -1746,18 +1762,29 @@ console.info(
   }
   function setView() {
     try {
-      const m = (location.pathname || "").match(/\/dashboard-(?:x|timo)\/([^\/\?]+)/);
-      const view = m ? m[1] : "haus";
+      const path = location.pathname || "";
+      const isDashboard = /^\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)/.test(path);
+      const root = document.documentElement;
+      root.setAttribute("data-panel", isDashboard ? "dash" : "admin");
+      if (!isDashboard) {
+        ++gen; // Cancel a pending transition before leaving the dashboard.
+        last = "";
+        snapWash(root, "");
+        root.removeAttribute("data-view");
+        if (document.body) document.body.removeAttribute("data-view");
+        return;
+      }
+      const m = path.match(/^\/dashboard-(?:x|timo|juli|mika|gabi)\/([^/?#]+)/);
+      const view = m ? decodeURIComponent(m[1]) : "haus";
       if (view === last) return;
       const prev = last;
       last = view;
-      const root = document.documentElement;
+      const my = ++gen;
       const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduce || !prev) {
         snapWash(root, view);
         return;
       }
-      const my = ++gen;
       root.setAttribute("data-view-next", view);
       if (document.body) document.body.setAttribute("data-view", view);
       root.style.setProperty("--apple-wash-next-opacity", "0");

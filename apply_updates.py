@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Idempotent runtime patch for HA dashboards and Apple Optik v1.9.23."""
+"""Idempotent runtime patch for HA dashboards and Apple Optik v1.9.24."""
 from pathlib import Path
+import os
 import re
 
-VERSION = "1.9.23"
-DASHBOARD_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)"
-VIEW_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)\/([^\/?]+)"
+VERSION = "1.9.24"
+ROOT = Path(os.environ.get("HA_CONFIG_ROOT", "/config"))
 
 TV = (
     "          - type: custom:ios-media-player\n"
@@ -54,18 +54,18 @@ JULI_PLACEHOLDER = (
 )
 
 YAML_PATHS = (
-    Path("/config/dashboards/zuhause.yaml"),
-    Path("/config/dashboards/timo.yaml"),
-    Path("/config/dashboards/juli.yaml"),
-    Path("/config/dashboards/mika.yaml"),
-    Path("/config/dashboards/gabi.yaml"),
-    Path("/config/zuhause.yaml"),
-    Path("/config/timo.yaml"),
+    ROOT / "dashboards/zuhause.yaml",
+    ROOT / "dashboards/timo.yaml",
+    ROOT / "dashboards/juli.yaml",
+    ROOT / "dashboards/mika.yaml",
+    ROOT / "dashboards/gabi.yaml",
+    ROOT / "zuhause.yaml",
+    ROOT / "timo.yaml",
 )
 
 JS_PATHS = (
-    Path("/config/www/apple-optik.js"),
-    Path("/config/apple-optik.js"),
+    ROOT / "www/apple-optik.js",
+    ROOT / "apple-optik.js",
 )
 
 
@@ -138,9 +138,8 @@ def patch_js(path: Path) -> str:
     t = re.sub(r'const VERSION = "1\.9\.\d+";', f'const VERSION = "{VERSION}";', t, count=1)
 
     # Scope the global wash/background to Lovelace dashboards only.
-    t = t.replace("html::before,\nhtml::after {", 'html[data-panel="dash"]::before,\nhtml[data-panel="dash"]::after {', 1)
-    t = t.replace("html::before {", 'html[data-panel="dash"]::before {', 1)
-    t = t.replace("html::after {", 'html[data-panel="dash"]::after {', 1)
+    t = t.replace("html::before", 'html[data-panel="dash"]::before')
+    t = t.replace("html::after", 'html[data-panel="dash"]::after')
     t = t.replace("html.apple-wash-animating::before", 'html[data-panel="dash"].apple-wash-animating::before')
     t = t.replace("html.apple-wash-animating::after", 'html[data-panel="dash"].apple-wash-animating::after')
 
@@ -173,31 +172,7 @@ html[data-panel=\"admin\"] ha-drawer {
     if old_bg in t:
         t = t.replace(old_bg, new_bg, 1)
 
-    # Add route tracking once. This makes all five YAML dashboards receive
-    # data-panel="dash" and keeps the per-view color washes working.
-    if "function markPanelAndView()" not in t:
-        marker = "function boot() {"
-        tracker = f'''function markPanelAndView() {{\n  try {{\n    const p = location.pathname || \"\";\n    const dash = /{DASHBOARD_JS}/.test(p);\n    document.documentElement.setAttribute(\"data-panel\", dash ? \"dash\" : \"admin\");\n    const m = p.match(/{VIEW_JS}/);\n    if (m && m[1]) document.documentElement.setAttribute(\"data-view\", m[1]);\n    else document.documentElement.removeAttribute(\"data-view\");\n  }} catch (_e) {{}}\n}}\n\n'''
-        if marker in t:
-            t = t.replace(marker, tracker + marker, 1)
-
-    if "markPanelAndView();\n  document.documentElement.style.colorScheme" not in t:
-        t = t.replace(
-            "function boot() {\n  document.documentElement.style.colorScheme",
-            "function boot() {\n  markPanelAndView();\n  document.documentElement.style.colorScheme",
-            1,
-        )
-
-    t = t.replace(
-        'window.addEventListener("location-changed", schedule);',
-        'window.addEventListener("location-changed", () => { markPanelAndView(); schedule(); });',
-        1,
-    )
-    t = t.replace(
-        'window.addEventListener("popstate", schedule);',
-        'window.addEventListener("popstate", () => { markPanelAndView(); schedule(); });',
-        1,
-    )
+    # Route state is owned by apple-optik.js itself, not injected at runtime.
 
     if t != original:
         path.write_text(t)

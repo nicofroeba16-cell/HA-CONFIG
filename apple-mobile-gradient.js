@@ -1,28 +1,9 @@
-/* Apple Optik — dashboard background route helper v5.
- * Keeps the existing gradient definitions in apple-optik.js untouched.
- * Ensures all personal dashboards get the same data-panel/data-view context
- * as dashboard-x, so the exact same per-view backgrounds are used.
+/* Apple Optik — shadow background helper v6.
+ * apple-optik.js owns dashboard routes and animated data-view state.
+ * This helper only keeps mobile Shadow DOM surfaces transparent.
  */
 (() => {
   const STYLE_ID = "apple-mobile-gradient";
-  const DASHBOARD_RE = /^\/dashboard-(x|timo|juli|mika|gabi)(?:\/|$)/;
-  const VIEW_RE = /^\/dashboard-(?:x|timo|juli|mika|gabi)\/([^/?#]+)/;
-
-  const markRoute = () => {
-    const path = window.location.pathname || "";
-    const root = document.documentElement;
-    const isDashboard = DASHBOARD_RE.test(path);
-
-    root.setAttribute("data-panel", isDashboard ? "dash" : "admin");
-
-    const match = path.match(VIEW_RE);
-    if (match?.[1]) {
-      root.setAttribute("data-view", decodeURIComponent(match[1]));
-    } else {
-      root.removeAttribute("data-view");
-    }
-  };
-
   const CSS = `
     @media (max-width: 600px) {
       ha-panel-lovelace,
@@ -60,7 +41,6 @@
   };
 
   const refresh = () => {
-    markRoute();
     scan();
   };
 
