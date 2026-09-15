@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.24";
+const VERSION = "1.9.25";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -69,25 +69,37 @@ html[data-panel="dash"].apple-wash-animating::after {
   will-change: opacity;
 }
 
-html[data-panel="dash"], html[data-panel="dash"] body,
-html[data-panel="dash"] home-assistant, html[data-panel="dash"] ha-app-layout,
-html[data-panel="dash"] ha-drawer, html[data-panel="dash"] hui-view,
-html[data-panel="dash"] hui-sections-view, html[data-panel="dash"] #view,
+html[data-panel="dash"],
+html[data-panel="dash"] body,
+html[data-panel="dash"] home-assistant,
+html[data-panel="dash"] ha-app-layout,
+html[data-panel="dash"] ha-drawer,
+html[data-panel="dash"] hui-root,
+html[data-panel="dash"] hui-view,
+html[data-panel="dash"] hui-sections-view,
+html[data-panel="dash"] #view,
 html[data-panel="dash"] hui-view-background {
   background: transparent !important;
+  background-color: transparent !important;
 }
 
-html[data-panel="admin"]::before,
-html[data-panel="admin"]::after {
-  content: none !important;
-  display: none !important;
-}
 html[data-panel="admin"],
 html[data-panel="admin"] body,
 html[data-panel="admin"] home-assistant,
 html[data-panel="admin"] ha-app-layout,
 html[data-panel="admin"] ha-drawer {
   background: var(--primary-background-color, #111) !important;
+}
+
+/* Keep the HA application above the fixed gradient layers without painting
+ * an opaque page background. This makes the wash deterministic across
+ * desktop, mobile and WebKit compositing paths. */
+body,
+home-assistant {
+  position: relative !important;
+  z-index: 1 !important;
+  min-height: 100%;
+  background: transparent !important;
 }
 
 home-assistant, ha-app-layout, hui-view, hui-sections-view {
@@ -495,6 +507,29 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
 `;
 
 const SHADOW_CSS = `
+:host(hui-root),
+:host(hui-view-background),
+:host(hui-view),
+:host(hui-sections-view),
+:host(ha-app-layout),
+hui-root,
+hui-view,
+hui-sections-view,
+#view,
+hui-view-background {
+  --lovelace-background: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+:host(hui-view-background)::before,
+:host(hui-view-background)::after,
+hui-view-background::before,
+hui-view-background::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+}
 :host {
   --ha-card-border-radius: 20px;
   --ha-card-border-width: 0px;
@@ -549,9 +584,9 @@ ha-icon, ha-state-icon, .icon {
   --icon-primary-color: #ffffff !important;
 }
 .toolbar {
-  background: #000 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: rgba(28, 28, 30, 0.55) !important;
+  backdrop-filter: saturate(180%) blur(28px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
 }
 .button {
   min-height: 44px;
@@ -631,6 +666,12 @@ function applyStyle(root, css, id) {
 const painted = new WeakSet();
 
 function styleHost(node) {
+  if (node.localName === "hui-view-background") {
+    node.style.setProperty("--lovelace-background", "transparent", "important");
+    node.style.setProperty("background", "transparent", "important");
+    node.style.setProperty("background-color", "transparent", "important");
+    node.style.setProperty("background-image", "none", "important");
+  }
   const sr = node.shadowRoot;
   if (!sr) return;
   if (!painted.has(sr)) {
@@ -720,13 +761,6 @@ function markAppShell() {
     st.content = "black-translucent";
     document.head.appendChild(st);
   }
-  if (!document.querySelector('link[rel="apple-touch-icon"][data-apple-optik]')) {
-    const l = document.createElement("link");
-    l.rel = "apple-touch-icon";
-    l.setAttribute("data-apple-optik", "1");
-    l.href = "/local/zuhause-icon.png";
-    document.head.appendChild(l);
-  }
 }
 
 function boot() {
@@ -758,6 +792,7 @@ if (document.readyState === "loading") {
 
 customElements.whenDefined("home-assistant").then(schedule);
 customElements.whenDefined("hui-view").then(schedule);
+customElements.whenDefined("hui-view-background").then(schedule);
 
 })();
 
@@ -1425,7 +1460,7 @@ console.info(
 
 /* ===== light-card ===== */
 (function () {
-const VERSION = "1.0.0";
+const VERSION = "1.0.1";
 const YELLOW = "#FFD60A";
 const INK = "#1C1C1E";
 const WHITE = "#F5F5F7";
@@ -1670,10 +1705,29 @@ class IosLightCard extends HTMLElement {
     this._name = this.shadowRoot.querySelector(".name");
     this._sub = this.shadowRoot.querySelector(".sub");
     this._bri = this.shadowRoot.querySelector(".bri");
-    this._tile.addEventListener("click", (e) => {
+    let tileHoldTimer = 0;
+    let tileLongPress = false;
+    const clearTileHold = () => {
+      if (tileHoldTimer) clearTimeout(tileHoldTimer);
+      tileHoldTimer = 0;
+    };
+    this._tile.addEventListener("pointerdown", (e) => {
       e.stopPropagation();
-      this._more();
+      tileLongPress = false;
+      clearTileHold();
+      tileHoldTimer = setTimeout(() => {
+        tileLongPress = true;
+        this._more();
+      }, 550);
     });
+    this._tile.addEventListener("pointerup", (e) => {
+      e.stopPropagation();
+      clearTileHold();
+      if (!tileLongPress) this._call("toggle");
+    });
+    this._tile.addEventListener("pointercancel", clearTileHold);
+    this._tile.addEventListener("pointerleave", clearTileHold);
+    this._tile.addEventListener("contextmenu", (e) => e.preventDefault());
     this.shadowRoot.querySelector(".power").addEventListener("click", (e) => {
       e.stopPropagation();
       this._call("toggle");
@@ -1751,6 +1805,12 @@ console.info(
 (function () {
   let last = "";
   let gen = 0;
+  function markPanel(root) {
+    const path = location.pathname || "";
+    const dashboard = /\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)/.test(path);
+    root.setAttribute("data-panel", dashboard ? "dash" : "admin");
+    return dashboard;
+  }
   function snapWash(root, view) {
     root.classList.remove("apple-wash-animating");
     root.setAttribute("data-view", view);
@@ -1762,46 +1822,28 @@ console.info(
   }
   function setView() {
     try {
-      const path = location.pathname || "";
-      const isDashboard = /^\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)/.test(path);
       const root = document.documentElement;
-      root.setAttribute("data-panel", isDashboard ? "dash" : "admin");
-      if (!isDashboard) {
-        ++gen; // Cancel a pending transition before leaving the dashboard.
+      if (!markPanel(root)) {
         last = "";
-        snapWash(root, "");
+        gen += 1;
+        root.classList.remove("apple-wash-animating");
         root.removeAttribute("data-view");
+        root.removeAttribute("data-view-next");
+        root.style.setProperty("--apple-wash-cur-opacity", "1");
+        root.style.setProperty("--apple-wash-next-opacity", "0");
+        root.style.setProperty("--apple-wash-scale", "1");
         if (document.body) document.body.removeAttribute("data-view");
         return;
       }
-      const m = path.match(/^\/dashboard-(?:x|timo|juli|mika|gabi)\/([^/?#]+)/);
-      const view = m ? decodeURIComponent(m[1]) : "haus";
-      if (view === last) return;
-      const prev = last;
+      const m = (location.pathname || "").match(/\/dashboard-(?:x|timo|juli|mika|gabi)\/([^\/\?]+)/);
+      const view = m ? m[1] : "haus";
+
+      /* Home Assistant can dispatch several navigation events during one
+       * view replacement. Apply the final wash atomically so an interrupted
+       * crossfade can never leave both gradient layers transparent/black. */
+      gen += 1;
       last = view;
-      const my = ++gen;
-      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduce || !prev) {
-        snapWash(root, view);
-        return;
-      }
-      root.setAttribute("data-view-next", view);
-      if (document.body) document.body.setAttribute("data-view", view);
-      root.style.setProperty("--apple-wash-next-opacity", "0");
-      root.style.setProperty("--apple-wash-scale", "1.04");
-      root.classList.add("apple-wash-animating");
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (my !== gen) return;
-          root.style.setProperty("--apple-wash-cur-opacity", "0");
-          root.style.setProperty("--apple-wash-next-opacity", "1");
-          root.style.setProperty("--apple-wash-scale", "1");
-        });
-      });
-      setTimeout(() => {
-        if (my !== gen) return;
-        snapWash(root, view);
-      }, 340);
+      snapWash(root, view);
     } catch (_e) {}
   }
   setView();

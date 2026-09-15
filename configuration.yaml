@@ -8,8 +8,18 @@ homeassistant:
 frontend:
   themes: !include_dir_merge_named themes
   extra_module_url:
-    - /local/apple-optik.js?v=1.9.24
+    - /local/apple-optik.js?v=1.9.25
     - /local/apple-mobile-gradient.js?v=6
+    - /local/apple-view-background-fix.js?v=1
+
+# iOS Next is an isolated custom panel. Existing Lovelace dashboards remain unchanged.
+panel_custom:
+  - name: ios-next-panel
+    url_path: ios-next
+    sidebar_title: iOS Next
+    sidebar_icon: mdi:apple
+    module_url: /local/ios-next/ios-next-panel.js?v=0.9.0-rc.3-hotfix1
+    handle_safe_area: true
 
 # YAML-Dashboards unter /config/dashboards/. Storage-Duplikate dashboard_x / dashboard-timo entfernen.
 lovelace:
@@ -41,13 +51,6 @@ lovelace:
       show_in_sidebar: false
       filename: dashboards/gabi.yaml
 
-panel_custom:
-  - name: ios-next-app
-    url_path: ios-next
-    sidebar_title: iOS Next
-    sidebar_icon: mdi:apple
-    module_url: /local/ios-next/ios-next.js?v=0.9.0-rc.1
-    handle_safe_area: true
 
 automation: !include automations.yaml
 script: !include scripts.yaml
@@ -89,7 +92,7 @@ recorder:
       - device_tracker.amazon_4de2fee8e
       - device_tracker.appletvnico
       - device_tracker.brotherhl_l3210cw
-      - device_tracker.brothermfc_j4410dw
+      - device_tracker.brothermfc_j4410cw
       - device_tracker.chromecast
       - device_tracker.denon_avr_x1800h
       - device_tracker.denonavr_x1300w
