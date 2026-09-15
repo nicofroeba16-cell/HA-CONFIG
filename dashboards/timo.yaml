@@ -1452,16 +1452,99 @@ views:
       - type: grid
         cards:
           - type: custom:mushroom-title-card
-            title: Juli Zimmer
-            subtitle: Smart-TV
-          - type: custom:mushroom-template-card
-            primary: Noch kein TV
-            secondary: Wird eingerichtet
-            icon: mdi:television-classic
-            icon_color: pink
-            layout: horizontal
+            title: Medien
+            subtitle: Fernseher
+          - type: custom:ios-media-player
+            entity: media_player.juli_zimmer_fire_tv_192_168_178_75
+            name: Juli Fernseher
+          - type: custom:mushroom-title-card
+            title: Beleuchtung
+            subtitle: TV
+          - type: custom:ios-light-card
+            entity: light.battletron_gaming_monitor_strip_2024_fernseher_hintergrund
+            name: TV Hintergrund
+      - type: grid
+        cards:
+          - type: conditional
+            conditions:
+              - entity: media_player.juli_zimmer_fire_tv_192_168_178_75
+                state_not: 'off'
+              - entity: media_player.juli_zimmer_fire_tv_192_168_178_75
+                state_not: unavailable
+              - entity: media_player.juli_zimmer_fire_tv_192_168_178_75
+                state_not: unknown
+            card:
+              type: custom:mushroom-template-card
+              primary: TV Master
+              secondary: Fernseher an
+              icon: mdi:power
+              icon_color: green
+              tap_action:
+                action: call-service
+                service: media_player.turn_off
+                target:
+                  entity_id: media_player.juli_zimmer_fire_tv_192_168_178_75
+                confirmation:
+                  text: Juli Fernseher ausschalten?
             grid_options:
-              columns: 12
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - entity: media_player.juli_zimmer_fire_tv_192_168_178_75
+                state: 'off'
+            card:
+              type: custom:mushroom-template-card
+              primary: TV Master
+              secondary: Fernseher aus
+              icon: mdi:power
+              icon_color: red
+              tap_action:
+                action: call-service
+                service: media_player.turn_on
+                target:
+                  entity_id: media_player.juli_zimmer_fire_tv_192_168_178_75
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - entity: light.battletron_gaming_monitor_strip_2024_fernseher_hintergrund
+                state: 'on'
+            card:
+              type: custom:mushroom-template-card
+              primary: Licht Master
+              secondary: Licht an
+              icon: mdi:power
+              icon_color: green
+              tap_action:
+                action: call-service
+                service: light.turn_off
+                target:
+                  entity_id: light.battletron_gaming_monitor_strip_2024_fernseher_hintergrund
+                confirmation:
+                  text: TV Hintergrund ausschalten?
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - entity: light.battletron_gaming_monitor_strip_2024_fernseher_hintergrund
+                state: 'off'
+            card:
+              type: custom:mushroom-template-card
+              primary: Licht Master
+              secondary: Licht aus
+              icon: mdi:power
+              icon_color: red
+              tap_action:
+                action: call-service
+                service: light.turn_on
+                target:
+                  entity_id: light.battletron_gaming_monitor_strip_2024_fernseher_hintergrund
+            grid_options:
+              columns: 6
+              rows: auto
       - type: grid
         cards:
           - type: custom:navbar-card
@@ -1558,9 +1641,6 @@ views:
           - type: custom:ios-media-player
             entity: media_player.wohnzimmer_wohnzimmer_fire_tv
             name: Fire TV
-          - type: custom:ios-media-player
-            entity: media_player.wohnzimmer_wohnzimmer_firetv_television
-            name: Fernseher
           - type: custom:mushroom-chips-card
             alignment: center
             chips:
