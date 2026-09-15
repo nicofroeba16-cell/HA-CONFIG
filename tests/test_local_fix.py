@@ -46,7 +46,7 @@ class LocalFixTests(unittest.TestCase):
     def test_yaml_navigation_and_navbars(self):
         for p in sorted((ROOT / 'dashboards').glob('*.yaml')):
             with self.subTest(dashboard=p.name):
-                data = yaml.safe_load(p.read_text())
+                data = yaml.load(p.read_text(), Loader=yaml.BaseLoader)
                 paths = [view['path'] for view in data['views']]
                 self.assertEqual(len(paths), 14)
                 self.assertEqual(len(paths), len(set(paths)))
@@ -102,12 +102,16 @@ const mediaVersion = "1.5.0";
             p.write_text(css)
             updates.patch_js(p)
             first = p.read_bytes()
-            self.assertNotIn('html::before', p.read_text())
-            self.assertNotIn('html::after', p.read_text())
+            self.assertIn('html[data-panel="dash"]::before', p.read_text())
+            self.assertIn('html[data-panel="dash"]::after', p.read_text())
             self.assertNotIn('html.apple-wash', p.read_text())
             self.assertIn('"1.5.0"', p.read_text())
             updates.patch_js(p)
-            self.assertEqual(first, p.read_bytes())
+            second = p.read_bytes()
+            updates.patch_js(p)
+            third = p.read_bytes()
+            self.assertEqual(first, second)
+            self.assertEqual(second, third)
             subprocess.run(['node', '--check', str(p)], check=True, capture_output=True)
 
     def test_legacy_yaml_migration_is_idempotent(self):
@@ -122,7 +126,7 @@ const mediaVersion = "1.5.0";
                 updates.patch_yaml(p)
                 self.assertEqual(first, p.read_bytes())
                 self.assertNotIn(updates.TV, p.read_text())
-                self.assertIn(updates.JULI_GROUPED, p.read_text())
+                self.assertIn(updates.JULI_TV, p.read_text())
 
     def test_deploy_source_contract_without_running_deploy(self):
         source = (ROOT / 'deploy.sh').read_text().replace('\\\n', ' ')
