@@ -1,7 +1,17 @@
 #!/bin/bash
-# HA-CONFIG deploy v1.9.24 — Zuhause is the dashboard master
+# HA-CONFIG deploy v1.9.25 — Zuhause is the dashboard master
 set -euo pipefail
 log() { echo "[deploy] $*"; }
+DRY_RUN="${DRY_RUN:-0}"
+
+if [ "$DRY_RUN" = "1" ]; then
+  log "dry-run: validating repository sources only"
+  for src in deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js themes/apple.yaml dashboards/zuhause.yaml; do
+    [ -f "/config/$src" ] || { log "fehlt /config/$src"; exit 1; }
+  done
+  log "dry-run: sources and target mappings are valid"
+  exit 0
+fi
 
 mkdir -p /config/dashboards /config/themes /config/www
 log "git fetch"
@@ -48,4 +58,4 @@ log "ha core check"
 ha core check
 log "restart Home Assistant"
 ha core restart
-log "OK v1.9.24"
+log "OK v1.9.25"
