@@ -3,6 +3,29 @@
  */
 (function () {
   const STYLE_ID = "apple-mobile-gradient";
+  const TRANSPARENCY_STYLE_ID = "apple-mobile-gradient-transparency";
+  const DASHBOARD_RE = /^\/dashboard-(x|timo|juli|mika|gabi)(?:\/|$)/;
+  const VIEW_RE = /^\/dashboard-(?:x|timo|juli|mika|gabi)\/([^/?#]+)/;
+
+  function markRoute() {
+    const path = globalThis.location?.pathname || globalThis.window?.location?.pathname;
+    if (!path) return;
+    const root = document.documentElement;
+    const isDashboard = DASHBOARD_RE.test(path);
+    root.setAttribute("data-panel", isDashboard ? "dash" : "admin");
+    const match = path.match(VIEW_RE);
+    if (match?.[1]) root.setAttribute("data-view", decodeURIComponent(match[1]));
+    else root.removeAttribute("data-view");
+  }
+
+  const TRANSPARENCY_CSS = `
+@media (max-width: 700px) {
+  ha-panel-lovelace, hui-root, hui-view, hui-sections-view, #view, hui-view-background {
+    background: transparent !important;
+    background-color: transparent !important;
+    --primary-background-color: transparent !important;
+  }
+}`;
   const CSS = `
 @media (max-width: 700px) {
   body[data-view="haus"],
@@ -66,8 +89,30 @@
 }
 `;
 
+  function installTransparency(root) {
+    if (!root || root.getElementById?.(TRANSPARENCY_STYLE_ID)) return;
+    const style = document.createElement("style");
+    style.id = TRANSPARENCY_STYLE_ID;
+    style.textContent = TRANSPARENCY_CSS;
+    root.appendChild(style);
+  }
+
+  function scan(node = document) {
+    if (node.shadowRoot) {
+      installTransparency(node.shadowRoot);
+      scan(node.shadowRoot);
+    }
+    node.querySelectorAll?.("*").forEach((el) => {
+      if (el.shadowRoot) {
+        installTransparency(el.shadowRoot);
+        scan(el.shadowRoot);
+      }
+    });
+  }
+
   function apply() {
     if (!document.head) return;
+    markRoute();
     let style = document.getElementById(STYLE_ID);
     if (!style) {
       style = document.createElement("style");
@@ -75,6 +120,8 @@
       document.head.appendChild(style);
     }
     if (style.textContent !== CSS) style.textContent = CSS;
+    installTransparency(document.head);
+    scan();
   }
 
   if (document.readyState === "loading") {
@@ -84,4 +131,5 @@
   }
   window.addEventListener("location-changed", apply);
   window.addEventListener("popstate", apply);
+  new MutationObserver(apply).observe(document.documentElement, { childList: true, subtree: true });
 })();
