@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.25";
+const VERSION = "1.9.26";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -798,7 +798,7 @@ customElements.whenDefined("hui-view-background").then(schedule);
 
 /* ===== media-player ===== */
 (function () {
-const VERSION = "1.5.0";
+const VERSION = "1.6.0";
 
 const FEAT = {
   PAUSE: 1,
@@ -809,6 +809,7 @@ const FEAT = {
   NEXT: 32,
   TURN_ON: 128,
   TURN_OFF: 256,
+  STOP: 4096,
   PLAY: 16384,
 };
 
@@ -828,6 +829,9 @@ const SVG = {
   next: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.8 6H18v12h-2.2V6zM5 5.8v12.4L14.8 12 5 5.8z"/></svg>`,
   play: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.5v13l11-6.5L8 5.5z"/></svg>`,
   pause: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.5 5h4v14h-4V5zm7 0h4v14h-4V5z"/></svg>`,
+  stop: `<svg viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5" fill="currentColor"/></svg>`,
+  mute: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9l4 6m0-6-4 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  volume: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`,
   power: `<svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 3v8"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M7.2 6.4a7 7 0 1 0 9.6 0"/></svg>`,
 };
 
@@ -874,6 +878,8 @@ const CSS = `
   row-gap: 2px;
 }
 .wrap.on.has-vol { height: 156px; grid-template-rows: 20px 16px 40px 32px 28px; }
+.wrap.on.has-apps { height: 168px; grid-template-rows: 20px 16px 40px 32px 40px; }
+.wrap.on.has-vol.has-apps { height: 196px; grid-template-rows: 20px 16px 40px 32px 28px 40px; }
 .wrap.receiver {
   height: 92px;
   display: grid;
@@ -1010,6 +1016,8 @@ const CSS = `
 .btn svg { width: 20px; height: 20px; }
 .btn.play { color: var(--apple-label, #f5f5f7); }
 .btn.play svg { width: 24px; height: 24px; }
+.btn.stop { color: var(--apple-red, #ff6961); }
+.skiplabel { font-size: 12px; font-weight: 700; letter-spacing: -0.02em; color: var(--apple-label, #f5f5f7); }
 @media (prefers-reduced-motion: no-preference) {
   .btn:active { transform: scale(0.88); }
 }
@@ -1019,7 +1027,7 @@ const CSS = `
   grid-column: 2 / 4;
   grid-row: 5;
   display: grid;
-  grid-template-columns: 1fr 36px;
+  grid-template-columns: 1fr 36px 40px;
   align-items: center;
   gap: 8px;
   min-width: 0;
@@ -1083,6 +1091,13 @@ const CSS = `
 }
 .wrap.on:not(.has-vol) .volrow { display: none; }
 .wrap.on.has-vol .art { grid-row: 1 / span 5; }
+.mute { justify-self: end; }
+.wrap:not(.companion) .mute { display: none !important; }
+.appbar { grid-column: 2 / 4; grid-row: 5; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.wrap.has-vol .appbar { grid-row: 6; }
+.wrap:not(.has-apps) .appbar { display: none; }
+.appbar::-webkit-scrollbar { display: none; }
+.appchip { flex: 0 0 auto; height: 32px; padding: 0 12px; border: 0; border-radius: 16px; background: var(--apple-fill, rgba(118,118,128,0.36)); color: var(--apple-label, #f5f5f7); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
 `;
 
 function fmtTime(s) {
@@ -1119,6 +1134,29 @@ function bindRange(el, { live, end }) {
 
 function hasFeat(st, bit) {
   return !!(Number(st?.attributes?.supported_features || 0) & bit);
+}
+
+function isFireTvCompanion(st) {
+  const a = st?.attributes || {};
+  return Object.prototype.hasOwnProperty.call(a, "skip_interval_seconds") ||
+    Object.prototype.hasOwnProperty.call(a, "companion_error");
+}
+
+function companionApps(config) {
+  if (!Array.isArray(config?.apps)) return [];
+  return config.apps
+    .filter((app) => app && typeof app === "object")
+    .map((app) => ({ name: String(app.name || "").trim(), package_name: String(app.package_name || "").trim() }))
+    .filter((app) => app.name && /^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+$/.test(app.package_name));
+}
+
+function skipSeconds(st) {
+  return Math.max(1, Math.round(Number(st?.attributes?.skip_interval_seconds) || 10));
+}
+
+function skipLabel(st, direction) {
+  const seconds = skipSeconds(st);
+  return `<span class="skiplabel">${direction < 0 ? "−" : "+"}${seconds}</span>`;
 }
 
 function appTile(app, name) {
@@ -1206,6 +1244,14 @@ class IosMediaPlayer extends HTMLElement {
     this._hass.callService("media_player", service, { entity_id, ...data });
   }
 
+  _launchApp(packageName) {
+    if (!this._hass || !this._config || !packageName) return;
+    this._hass.callService("firetv_companion", "launch_app", {
+      entity_id: this._config.entity,
+      package_name: packageName,
+    });
+  }
+
   _more() {
     this.dispatchEvent(
       new CustomEvent("hass-more-info", {
@@ -1271,11 +1317,14 @@ class IosMediaPlayer extends HTMLElement {
           <button class="btn prev" type="button" aria-label="Zurück">${SVG.prev}</button>
           <button class="btn play" type="button" aria-label="Play">${SVG.play}</button>
           <button class="btn next" type="button" aria-label="Weiter">${SVG.next}</button>
+          <button class="btn stop" type="button" aria-label="Stopp" hidden>${SVG.stop}</button>
         </div>
         <div class="volrow">
           <input class="vol" type="range" min="0" max="1" step="0.01" value="0">
           <span class="voln">0</span>
+          <button class="btn mute" type="button" aria-label="Stumm" hidden>${SVG.mute}</button>
         </div>
+        <div class="appbar"></div>
       </div>`;
     this._root = this.shadowRoot.querySelector(".wrap");
     this._art = this.shadowRoot.querySelector(".art");
@@ -1293,6 +1342,9 @@ class IosMediaPlayer extends HTMLElement {
     this._vol = this.shadowRoot.querySelector(".vol");
     this._voln = this.shadowRoot.querySelector(".voln");
     this._power = this.shadowRoot.querySelector(".power");
+    this._stop = this.shadowRoot.querySelector(".stop");
+    this._mute = this.shadowRoot.querySelector(".mute");
+    this._appbar = this.shadowRoot.querySelector(".appbar");
     this._img.addEventListener("error", () => {
       this._img.classList.add("off");
       this._art.classList.remove("has-pic");
@@ -1317,6 +1369,15 @@ class IosMediaPlayer extends HTMLElement {
     this._play.addEventListener("click", (e) => {
       e.stopPropagation();
       this._call("media_play_pause");
+    });
+    this._stop.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._call("media_stop");
+    });
+    this._mute.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const st = this._volSt();
+      this._call("volume_mute", { is_volume_muted: !Boolean(st?.attributes?.is_volume_muted) });
     });
     let vt = 0;
     const setVolUi = (v) => {
@@ -1351,6 +1412,27 @@ class IosMediaPlayer extends HTMLElement {
     });
   }
 
+  _renderApps(companion) {
+    const apps = companion ? companionApps(this._config) : [];
+    this._root.classList.toggle("has-apps", apps.length > 0);
+    const signature = apps.map((app) => `${app.name}:${app.package_name}`).join("|");
+    if (signature === this._appsSignature) return;
+    this._appsSignature = signature;
+    this._appbar.replaceChildren();
+    for (const app of apps) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "appchip";
+      button.textContent = app.name;
+      button.setAttribute("aria-label", `${app.name} starten`);
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._launchApp(app.package_name);
+      });
+      this._appbar.appendChild(button);
+    }
+  }
+
   _render() {
     this._ensure();
     const st = this._st();
@@ -1358,6 +1440,7 @@ class IosMediaPlayer extends HTMLElement {
     const receiver = this._config.role === "receiver";
     const idle = !st || ["off", "idle", "standby", "unavailable", "unknown"].includes(st.state);
     const playing = st?.state === "playing";
+    const companion = isFireTvCompanion(st);
     const app = st?.attributes?.app_name || "";
     const tile = appTile(app, name);
     const pic = idle || receiver ? "" : picUrl(st, this._hass);
@@ -1370,7 +1453,9 @@ class IosMediaPlayer extends HTMLElement {
     this._root.classList.toggle("idle", idle && !receiver);
     this._root.classList.toggle("on", !idle && !receiver);
     this._root.classList.toggle("receiver", receiver);
+    this._root.classList.toggle("companion", companion);
     this._root.classList.toggle("has-vol", volOn);
+    this._renderApps(companion);
 
     let title;
     let artist;
@@ -1382,7 +1467,7 @@ class IosMediaPlayer extends HTMLElement {
       artist = idleLabel(st);
     } else {
       title = st.attributes.media_title || app || name;
-      artist = st.attributes.media_artist || st.attributes.media_series_title || app || "";
+      artist = (companion && st.attributes.media_subtitle) || st.attributes.media_artist || st.attributes.media_series_title || app || "";
     }
 
     this._title.textContent = title || "--";
@@ -1409,6 +1494,19 @@ class IosMediaPlayer extends HTMLElement {
     this._play.setAttribute("aria-label", playing ? "Pause" : "Play");
     this._prev.hidden = idle || receiver || !hasFeat(st, FEAT.PREVIOUS);
     this._next.hidden = idle || receiver || !hasFeat(st, FEAT.NEXT);
+    if (companion) {
+      const seconds = skipSeconds(st);
+      this._prev.innerHTML = skipLabel(st, -1);
+      this._next.innerHTML = skipLabel(st, 1);
+      this._prev.setAttribute("aria-label", `${seconds} Sekunden zurück`);
+      this._next.setAttribute("aria-label", `${seconds} Sekunden vor`);
+    } else {
+      this._prev.innerHTML = SVG.prev;
+      this._next.innerHTML = SVG.next;
+      this._prev.setAttribute("aria-label", "Zurück");
+      this._next.setAttribute("aria-label", "Weiter");
+    }
+    this._stop.hidden = !companion || idle || receiver || !hasFeat(st, FEAT.STOP);
 
     if (receiver) {
       this._power.hidden = !st || st.state !== "off";
@@ -1436,6 +1534,13 @@ class IosMediaPlayer extends HTMLElement {
         this._vol.style.setProperty("--vol-fill", `${Math.round(v * 1000) / 10}%`);
         if (this._voln) this._voln.textContent = String(Math.round(v * 100));
       }
+    }
+    const canMute = companion && !idle && !receiver && hasFeat(volSt, FEAT.VOLUME_MUTE);
+    this._mute.hidden = !canMute;
+    if (canMute) {
+      const muted = Boolean(volSt?.attributes?.is_volume_muted);
+      this._mute.innerHTML = muted ? SVG.volume : SVG.mute;
+      this._mute.setAttribute("aria-label", muted ? "Ton einschalten" : "Stumm schalten");
     }
   }
 }
