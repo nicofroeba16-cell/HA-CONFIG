@@ -35,3 +35,11 @@ test('Fire TV Companion mode exposes the extended control contract', () => {
   assert.match(source, /launch_app/);
   assert.match(source, /package_name/);
 });
+
+
+test('power control is capability-gated', () => {
+  assert.match(source, /hasFeat\(st, FEAT\.TURN_ON\)/);
+  assert.match(source, /hasFeat\(st, FEAT\.TURN_OFF\)/);
+  assert.match(source, /if \(hasFeat\(st, FEAT\.TURN_ON\)\) this\._call\("turn_on"\)/);
+  assert.match(source, /else if \(hasFeat\(st, FEAT\.TURN_OFF\)\)/);
+});
