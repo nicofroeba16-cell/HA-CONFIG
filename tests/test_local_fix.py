@@ -136,7 +136,7 @@ const mediaVersion = "1.5.0";
         self.assertNotIn('zuhause.yaml', checkout)
         copies = re.findall(r'^copy_one (\S+) (\S+)$', source, re.M)
         self.assertFalse(any(dst == '/config/dashboards/zuhause.yaml' for _, dst in copies))
-        for name in ('apple-optik.js', 'apple-mobile-gradient.js'):
+        for name in ('apple-optik.js', 'apple-mobile-gradient.js', 'apple-view-background-fix.js'):
             self.assertIn(name, checkout)
             self.assertIn('need /config/' + name, source)
             self.assertIn(('/config/' + name, '/config/www/' + name), copies)
@@ -147,7 +147,8 @@ const mediaVersion = "1.5.0";
         version = re.search(r'const VERSION = "([^"]+)"', (ROOT / 'apple-optik.js').read_text())[1]
         self.assertEqual(version, updates.VERSION)
         self.assertIn('/local/apple-optik.js?v=' + version, config)
-        self.assertIn('/local/apple-mobile-gradient.js?v=6', config)
+        self.assertIn('/local/apple-mobile-gradient.js?v=7', config)
+        self.assertIn('/local/apple-view-background-fix.js?v=1', config)
 
     def test_syntax(self):
         yaml_paths = list(ROOT.glob('*.yaml')) + list((ROOT / 'dashboards').glob('*.yaml'))
