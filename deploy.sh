@@ -1,5 +1,5 @@
 #!/bin/bash
-# HA-CONFIG deploy v1.9.25 — Zuhause is the dashboard master
+# HA-CONFIG deploy v1.9.26 — Zuhause is the dashboard master
 set -euo pipefail
 log() { echo "[deploy] $*"; }
 DRY_RUN="${DRY_RUN:-0}"
@@ -14,12 +14,18 @@ if [ "$DRY_RUN" = "1" ]; then
 fi
 
 mkdir -p /config/dashboards /config/themes /config/www
+if [ -f /config/backup_fire_tv_media_card.sh ]; then
+  log "backup current Fire TV media-card runtime"
+  BACKUP_DIR="$(bash /config/backup_fire_tv_media_card.sh /config)"
+  log "backup $BACKUP_DIR"
+fi
+
 log "git fetch"
 git -C /config fetch origin main
 
 log "checkout"
 git -C /config checkout origin/main -- \
-  deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js themes/apple.yaml \
+  deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js themes/apple.yaml backup_fire_tv_media_card.sh restore_fire_tv_media_card_backup.sh \
   dashboards/zuhause.yaml
 
 need() { [ -f "$1" ] || { log "fehlt $1"; exit 1; }; }
@@ -58,4 +64,4 @@ log "ha core check"
 ha core check
 log "restart Home Assistant"
 ha core restart
-log "OK v1.9.25"
+log "OK v1.9.26"
