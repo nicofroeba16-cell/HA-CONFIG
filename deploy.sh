@@ -1,5 +1,5 @@
 #!/bin/bash
-# HA-CONFIG deploy v1.9.26 — Zuhause is the dashboard master
+# HA-CONFIG deploy v1.9.27 — Zuhause is the dashboard master
 set -euo pipefail
 log() { echo "[deploy] $*"; }
 DRY_RUN="${DRY_RUN:-0}"
@@ -64,4 +64,4 @@ log "ha core check"
 ha core check
 log "restart Home Assistant"
 ha core restart
-log "OK v1.9.26"
+log "OK v1.9.27"

@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.26";
+const VERSION = "1.9.27";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -798,7 +798,7 @@ customElements.whenDefined("hui-view-background").then(schedule);
 
 /* ===== media-player ===== */
 (function () {
-const VERSION = "1.6.0";
+const VERSION = "1.6.1";
 
 const FEAT = {
   PAUSE: 1,
@@ -1356,8 +1356,11 @@ class IosMediaPlayer extends HTMLElement {
       e.stopPropagation();
       const st = this._st();
       if (!st) return;
-      if (st.state === "off") this._call("turn_on");
-      else this._call("turn_off");
+      if (st.state === "off") {
+        if (hasFeat(st, FEAT.TURN_ON)) this._call("turn_on");
+      } else if (hasFeat(st, FEAT.TURN_OFF)) {
+        this._call("turn_off");
+      }
     });
     this._prev.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1509,10 +1512,12 @@ class IosMediaPlayer extends HTMLElement {
     }
     this._stop.hidden = !companion || idle || receiver || !hasFeat(st, FEAT.STOP);
 
+    const canPowerOn = !!st && st.state === "off" && hasFeat(st, FEAT.TURN_ON);
+    const canPowerOff = !!st && st.state !== "off" && hasFeat(st, FEAT.TURN_OFF);
     if (receiver) {
-      this._power.hidden = !st || st.state !== "off";
+      this._power.hidden = !canPowerOn;
     } else {
-      this._power.hidden = !idle;
+      this._power.hidden = idle ? !canPowerOn : !canPowerOff;
     }
 
     this._prog.classList.toggle("off", idle || receiver || !(dur > 0));
