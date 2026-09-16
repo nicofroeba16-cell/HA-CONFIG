@@ -1027,11 +1027,12 @@ const CSS = `
   grid-column: 2 / 4;
   grid-row: 5;
   display: grid;
-  grid-template-columns: 1fr 36px 40px;
+  grid-template-columns: 1fr 36px;
   align-items: center;
   gap: 8px;
   min-width: 0;
 }
+.wrap.companion .volrow { grid-template-columns: 1fr 36px 40px; }
 .voln {
   font-size: 13px;
   font-weight: 600;
