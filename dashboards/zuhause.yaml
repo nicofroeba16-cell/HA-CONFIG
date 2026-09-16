@@ -1641,6 +1641,9 @@ views:
           - type: custom:ios-media-player
             entity: media_player.wohnzimmer_wohnzimmer_fire_tv
             name: Fire TV
+          - type: custom:ios-media-player
+            entity: media_player.wohnzimmer_wohnzimmer_firetv_television
+            name: Fernseher
           - type: custom:mushroom-chips-card
             alignment: center
             chips:

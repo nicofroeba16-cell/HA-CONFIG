@@ -1158,7 +1158,8 @@ function progress(st) {
 
 function idleLabel(st) {
   const s = st?.state;
-  if (!st || s === "off" || s === "unavailable" || s === "unknown") return "Aus";
+  if (!st || s === "unavailable" || s === "unknown") return "Verbindung verloren";
+  if (s === "off") return "Aus";
   if (s === "idle" || s === "standby") return "Bereit";
   return st.attributes?.source || s || "";
 }
