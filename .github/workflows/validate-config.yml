@@ -30,6 +30,12 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Test dashboard routes and background transitions
         run: node tests/routes.test.cjs
+      - name: Test Fire TV media card and deployment helpers
+        run: |
+          node tests/media-player.test.cjs
+          bash -n deploy.sh
+          bash -n backup_fire_tv_media_card.sh
+          bash -n restore_fire_tv_media_card_backup.sh
       - name: Verify tests left the checkout unchanged
         run: |
           test -z "$(git status --porcelain --untracked-files=all)"
