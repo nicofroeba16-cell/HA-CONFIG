@@ -88,6 +88,7 @@ test('mobile helper does not overwrite animation route state', () => {
   };
   vm.runInNewContext(helper, { document,
     window: { addEventListener(event, callback) { callbacks.push(callback); } },
+    requestAnimationFrame(callback) { callback(); return 1; },
     MutationObserver: class { constructor(callback) { observer = callback; } observe() {} },
   });
   if (observer) observer(); callbacks.forEach(fn => fn());

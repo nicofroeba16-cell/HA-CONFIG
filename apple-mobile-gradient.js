@@ -89,8 +89,12 @@
 }
 `;
 
+  function findStyle(root, id) {
+    return root?.getElementById?.(id) ?? root?.querySelector?.(`#${id}`) ?? null;
+  }
+
   function installTransparency(root) {
-    if (!root || root.getElementById?.(TRANSPARENCY_STYLE_ID)) return;
+    if (!root || findStyle(root, TRANSPARENCY_STYLE_ID)) return;
     const style = document.createElement("style");
     style.id = TRANSPARENCY_STYLE_ID;
     style.textContent = TRANSPARENCY_CSS;
@@ -131,5 +135,14 @@
   }
   window.addEventListener("location-changed", apply);
   window.addEventListener("popstate", apply);
-  new MutationObserver(apply).observe(document.documentElement, { childList: true, subtree: true });
+
+  let applyFrame = 0;
+  function scheduleApply() {
+    if (applyFrame) return;
+    applyFrame = requestAnimationFrame(() => {
+      applyFrame = 0;
+      apply();
+    });
+  }
+  new MutationObserver(scheduleApply).observe(document.documentElement, { childList: true, subtree: true });
 })();

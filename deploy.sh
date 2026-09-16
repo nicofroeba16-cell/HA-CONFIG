@@ -5,9 +5,10 @@ log() { echo "[deploy] $*"; }
 DRY_RUN="${DRY_RUN:-0}"
 
 if [ "$DRY_RUN" = "1" ]; then
-  log "dry-run: validating repository sources only"
-  for src in deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js themes/apple.yaml dashboards/zuhause.yaml; do
-    [ -f "/config/$src" ] || { log "fehlt /config/$src"; exit 1; }
+  dry_run_root="${HA_CONFIG_ROOT:-/config}"
+  log "dry-run: validating repository sources only in $dry_run_root"
+  for src in deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js apple-view-background-fix.js themes/apple.yaml dashboards/zuhause.yaml; do
+    [ -f "$dry_run_root/$src" ] || { log "fehlt $dry_run_root/$src"; exit 1; }
   done
   log "dry-run: sources and target mappings are valid"
   exit 0
@@ -25,7 +26,7 @@ git -C /config fetch origin main
 
 log "checkout"
 git -C /config checkout origin/main -- \
-  deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js themes/apple.yaml backup_fire_tv_media_card.sh restore_fire_tv_media_card_backup.sh \
+  deploy.sh apply_updates.py generate_personal_dashboards.py configuration.yaml apple.yaml apple-optik.js apple-mobile-gradient.js apple-view-background-fix.js themes/apple.yaml backup_fire_tv_media_card.sh restore_fire_tv_media_card_backup.sh \
   dashboards/zuhause.yaml
 
 need() { [ -f "$1" ] || { log "fehlt $1"; exit 1; }; }
@@ -34,6 +35,7 @@ need /config/dashboards/zuhause.yaml
 need /config/apple.yaml
 need /config/apple-optik.js
 need /config/apple-mobile-gradient.js
+need /config/apple-view-background-fix.js
 need /config/apply_updates.py
 need /config/generate_personal_dashboards.py
 need /config/deploy.sh
@@ -48,6 +50,7 @@ copy_one() {
 copy_one /config/apple.yaml /config/themes/apple.yaml
 copy_one /config/apple-optik.js /config/www/apple-optik.js
 copy_one /config/apple-mobile-gradient.js /config/www/apple-mobile-gradient.js
+copy_one /config/apple-view-background-fix.js /config/www/apple-view-background-fix.js
 
 log "generate Timo/Juli/Mika/Gabi from Zuhause master"
 python3 /config/generate_personal_dashboards.py
