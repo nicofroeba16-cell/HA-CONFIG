@@ -23,3 +23,15 @@ test('card has explicit fixtures for reduced capability and media metadata', () 
   assert.match(source, /media_image_url/);
   assert.match(source, /media_position_updated_at/);
 });
+
+
+test('Fire TV Companion mode exposes the extended control contract', () => {
+  assert.match(source, /skip_interval_seconds/);
+  assert.match(source, /FEAT\.STOP/);
+  assert.match(source, /media_stop/);
+  assert.match(source, /media_subtitle/);
+  assert.match(source, /is_volume_muted/);
+  assert.match(source, /firetv_companion/);
+  assert.match(source, /launch_app/);
+  assert.match(source, /package_name/);
+});

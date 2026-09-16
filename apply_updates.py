@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Idempotent runtime patch for HA dashboards and Apple Optik v1.9.25."""
+"""Idempotent runtime patch for HA dashboards and Apple Optik v1.9.26."""
 from pathlib import Path
 import re
 
-VERSION = "1.9.25"
+VERSION = "1.9.26"
 DASHBOARD_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)"
 VIEW_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)\/([^\/?]+)"
 
@@ -13,9 +13,15 @@ TV = (
     "            name: Fernseher\n"
 )
 
-MIKA_TV = (
+LEGACY_MIKA_TV = (
     "          - type: custom:ios-media-player\n"
     "            entity: media_player.fire_tv_192_168_178_54\n"
+    "            name: Mika Fernseher\n"
+)
+
+MIKA_TV = (
+    "          - type: custom:ios-media-player\n"
+    "            entity: media_player.fire_tv_companion\n"
     "            name: Mika Fernseher\n"
 )
 
@@ -61,6 +67,9 @@ def patch_yaml(path: Path) -> str:
 
     # Keep the existing Wohnzimmer cleanup.
     t = t.replace(TV, "")
+
+    # Mika uses the already-paired native Fire TV Companion entity.
+    t = t.replace(LEGACY_MIKA_TV, MIKA_TV)
 
     # Juli TV: add to the shared Medien view in every dashboard.
     t = t.replace(

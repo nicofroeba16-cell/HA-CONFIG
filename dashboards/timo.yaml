@@ -682,7 +682,7 @@ views:
             entity: media_player.schlafzimmer
             name: Audio Schlafzimmer (Timo)
           - type: custom:ios-media-player
-            entity: media_player.fire_tv_192_168_178_54
+            entity: media_player.fire_tv_companion
             name: Mika Fernseher
           - type: custom:ios-media-player
             entity: media_player.wohnzimmer_wohnzimmer_fire_tv
@@ -1434,7 +1434,7 @@ views:
             title: Mika Zimmer
             subtitle: Fernseher
           - type: custom:ios-media-player
-            entity: media_player.fire_tv_192_168_178_54
+            entity: media_player.fire_tv_companion
             name: Mika Fernseher
       - type: grid
         cards:
