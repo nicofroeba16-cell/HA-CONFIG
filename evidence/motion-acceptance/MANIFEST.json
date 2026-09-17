@@ -1,0 +1,72 @@
+{
+  "goalVersion": "ha-dashboard-next-ios-motion-v1",
+  "testedSourceHead": "18e189cc1f6a5ee9c44f608f8a4a6f778c18a3db",
+  "sourceBaseline": "411b7b2c4057812f0fd3cf256b9342fdc3250fc8",
+  "generatedAt": "2026-09-17T23:20:48.132Z",
+  "allPass": true,
+  "media": [
+    {
+      "path": "evidence/motion-acceptance/iphone-393x852-motion.avi",
+      "viewport": "393x852",
+      "scenario": "iphone-393x852-motion",
+      "fps": 8,
+      "frameCount": 113,
+      "pass": true,
+      "sha256": "343962849eae6cdeaaa5ba93fc91844891fe42c75362b0cd975d35ae18ec10a1",
+      "bytes": 1720940,
+      "reloadIncluded": true,
+      "domNodesBefore": 64,
+      "domNodesAfter": 64,
+      "consoleErrors": [],
+      "overflow": false
+    },
+    {
+      "path": "evidence/motion-acceptance/iphone-430x932-motion.avi",
+      "viewport": "430x932",
+      "scenario": "iphone-430x932-motion",
+      "fps": 8,
+      "frameCount": 113,
+      "pass": true,
+      "sha256": "1e6d2f3918716febf3d0eb4b9efaca8f5cdab1ea99b012774e50b2c76a419137",
+      "bytes": 1802994,
+      "reloadIncluded": true,
+      "domNodesBefore": 64,
+      "domNodesAfter": 64,
+      "consoleErrors": [],
+      "overflow": false
+    },
+    {
+      "path": "evidence/motion-acceptance/iphone-375x812-stress.avi",
+      "viewport": "375x812",
+      "scenario": "iphone-375x812-stress",
+      "fps": 8,
+      "frameCount": 113,
+      "pass": true,
+      "sha256": "c08b783746d64de66031ace8b9dfad72a5db7919f116fee2bdb0a22fc53c7b0e",
+      "bytes": 1686730,
+      "reloadIncluded": true,
+      "domNodesBefore": 64,
+      "domNodesAfter": 64,
+      "consoleErrors": [],
+      "overflow": false
+    },
+    {
+      "path": "evidence/motion-acceptance/iphone-393x852-reduced-motion.avi",
+      "viewport": "393x852",
+      "scenario": "iphone-393x852-reduced-motion",
+      "fps": 8,
+      "frameCount": 113,
+      "pass": true,
+      "sha256": "7456d135a0159df9d78017d3821dfe1fe99e18e668736e3e7639fae70867d163",
+      "bytes": 1748090,
+      "reloadIncluded": true,
+      "domNodesBefore": 64,
+      "domNodesAfter": 64,
+      "consoleErrors": [],
+      "overflow": false
+    }
+  ],
+  "metricsEvidence": "evidence/motion-acceptance/results.json",
+  "acceptanceMatrix": "evidence/motion-acceptance/MOTION_ACCEPTANCE_MATRIX.md",
+  "liveActionsPerformed": false
+}
