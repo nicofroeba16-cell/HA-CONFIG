@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.27";
+const VERSION = "1.9.28";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -29,6 +29,10 @@ html {
   --apple-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --apple-ease-wash: cubic-bezier(0.22, 0.61, 0.36, 1);
   --apple-ease-snap: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --apple-motion-fast: 0.18s;
+  --apple-motion-base: 0.28s;
+  --apple-motion-route: 0.32s;
+  --apple-motion-distance: 6px;
 }
 
 html[data-panel="dash"]::before,
@@ -66,7 +70,7 @@ html[data-panel="dash"].apple-wash-animating::after {
 }
 html[data-panel="dash"].apple-wash-animating::before,
 html[data-panel="dash"].apple-wash-animating::after {
-  will-change: opacity;
+  will-change: opacity, transform;
 }
 
 html[data-panel="dash"],
@@ -185,7 +189,9 @@ ha-card {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   contain: layout paint;
-  transition: -webkit-transform 0.2s ${EASE}, transform 0.2s ${EASE};
+  transition: -webkit-transform var(--apple-motion-fast, 0.18s) ${EASE},
+              transform var(--apple-motion-fast, 0.18s) ${EASE},
+              opacity var(--apple-motion-base, 0.28s) ${EASE_WASH};
 }
 
 hui-card {
@@ -466,6 +472,17 @@ app-header, app-toolbar, ha-tabs {
 
 ha-dialog { --ha-dialog-border-radius: 28px; }
 
+@keyframes apple-detail-in {
+  from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.985); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  ha-more-info-dialog, more-info-dialog, ha-dialog[open] {
+    animation: apple-detail-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transform-origin: 50% 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   hui-card {
     animation: none !important;
@@ -486,6 +503,16 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
     transition: transform 0.01s linear, opacity 0.01s linear !important;
   }
 }
+@media (prefers-reduced-transparency: reduce) {
+  app-header, app-toolbar, ha-top-app-bar, ha-top-app-bar-fixed,
+  hui-view-header, hui-header, .header,
+  .navbar.mobile ha-card, ha-card.navbar-card.mobile, ha-card.navbar-card.mobile.floating {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(28, 28, 30, 0.96) !important;
+  }
+}
+
 @media (prefers-contrast: more) {
   html {
     --apple-gold: #F0C089;
@@ -745,6 +772,12 @@ function markAppShell() {
     m.content = "yes";
     document.head.appendChild(m);
   }
+  if (!document.querySelector('meta[name="mobile-web-app-capable"]')) {
+    const m = document.createElement("meta");
+    m.name = "mobile-web-app-capable";
+    m.content = "yes";
+    document.head.appendChild(m);
+  }
   let t = document.querySelector('meta[name="apple-mobile-web-app-title"]');
   if (!t) {
     t = document.createElement("meta");
@@ -851,7 +884,19 @@ const CSS = `
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1),
+              height 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              border-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              background-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.wrap[data-motion-state="loading"] { opacity: 0.62; }
+.wrap[data-motion-state="unavailable"] { opacity: 0.72; }
+.art, .mid, .prog, .row, .volrow, .appbar {
+  transition: opacity 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.22s cubic-bezier(0.32, 0.72, 0, 1),
+              color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              background-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 @media (prefers-reduced-motion: no-preference) {
   .wrap:active {
@@ -860,7 +905,10 @@ const CSS = `
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wrap { transition: transform 0.01s linear; }
+  .wrap, .art, .mid, .prog, .row, .volrow, .appbar, .btn, .iconbtn {
+    transition-duration: 0.01s !important;
+    animation: none !important;
+  }
 }
 .wrap.idle {
   height: 64px;
@@ -1445,6 +1493,16 @@ class IosMediaPlayer extends HTMLElement {
     const idle = !st || ["off", "idle", "standby", "unavailable", "unknown"].includes(st.state);
     const playing = st?.state === "playing";
     const companion = isFireTvCompanion(st);
+    const motionState = !st
+      ? "loading"
+      : ["unavailable", "unknown"].includes(st.state)
+        ? "unavailable"
+        : receiver
+          ? "receiver"
+          : idle
+            ? "idle"
+            : "active";
+    this._root.dataset.motionState = motionState;
     const app = st?.attributes?.app_name || "";
     const tile = appTile(app, name);
     const pic = idle || receiver ? "" : picUrl(st, this._hass);
@@ -1595,7 +1653,19 @@ const CSS = `
   -webkit-transform: translate3d(0,0,0);
   transform: translate3d(0,0,0);
   overflow: hidden;
-  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1),
+              height 0.30s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              border-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              background-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.wrap[data-motion-state="loading"] { opacity: 0.62; }
+.wrap[data-motion-state="unavailable"] { opacity: 0.72; }
+.tile, .mid, .power, .bri {
+  transition: opacity 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.18s cubic-bezier(0.32, 0.72, 0, 1),
+              color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              background-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 @media (prefers-reduced-motion: no-preference) {
   .wrap:active {
@@ -1604,7 +1674,10 @@ const CSS = `
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wrap { transition: transform 0.01s linear; }
+  .wrap, .tile, .mid, .power, .bri {
+    transition-duration: 0.01s !important;
+    animation: none !important;
+  }
 }
 .wrap.off {
   height: 64px;
@@ -1864,6 +1937,14 @@ class IosLightCard extends HTMLElement {
     const st = this._st();
     const name = this._config.name || st?.attributes?.friendly_name || "Licht";
     const on = st?.state === "on";
+    const motionState = !st
+      ? "loading"
+      : ["unavailable", "unknown"].includes(st.state)
+        ? "unavailable"
+        : on
+          ? "on"
+          : "off";
+    this._root.dataset.motionState = motionState;
     const briOk = hasBrightness(st);
     const yellow = this._yellow();
     const col = tileColors(st, yellow);
@@ -1917,47 +1998,105 @@ console.info(
 (function () {
   let last = "";
   let gen = 0;
+  let washTimer = 0;
+  const WASH_MS = 320;
+
+  function reduceMotion() {
+    try {
+      return !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function clearWashTimer() {
+    if (!washTimer) return;
+    clearTimeout(washTimer);
+    washTimer = 0;
+  }
+
   function markPanel(root) {
     const path = location.pathname || "";
     const dashboard = /\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)/.test(path);
     root.setAttribute("data-panel", dashboard ? "dash" : "admin");
     return dashboard;
   }
-  function snapWash(root, view) {
+
+  function resetWashVars(root) {
     root.classList.remove("apple-wash-animating");
-    root.setAttribute("data-view", view);
     root.removeAttribute("data-view-next");
+    if (document.body) document.body.removeAttribute("data-view-next");
     root.style.setProperty("--apple-wash-cur-opacity", "1");
     root.style.setProperty("--apple-wash-next-opacity", "0");
     root.style.setProperty("--apple-wash-scale", "1");
+  }
+
+  function snapWash(root, view) {
+    clearWashTimer();
+    resetWashVars(root);
+    root.setAttribute("data-view", view);
     if (document.body) document.body.setAttribute("data-view", view);
   }
+
+  function animateWash(root, view) {
+    const current = root.getAttribute("data-view") || last;
+    if (!current || current === view || reduceMotion()) {
+      gen += 1;
+      last = view;
+      snapWash(root, view);
+      return;
+    }
+
+    /* Never stack route animations. Rapid repeated navigation prioritizes
+     * responsiveness and resolves atomically to the newest destination. */
+    if (root.hasAttribute("data-view-next") || root.classList.contains("apple-wash-animating")) {
+      gen += 1;
+      last = view;
+      snapWash(root, view);
+      return;
+    }
+
+    clearWashTimer();
+    const token = ++gen;
+    last = view;
+    root.setAttribute("data-view-next", view);
+    if (document.body) document.body.setAttribute("data-view-next", view);
+    root.style.setProperty("--apple-wash-cur-opacity", "1");
+    root.style.setProperty("--apple-wash-next-opacity", "0");
+    root.style.setProperty("--apple-wash-scale", "1.012");
+
+    requestAnimationFrame(() => {
+      if (token !== gen || !markPanel(root)) return;
+      root.classList.add("apple-wash-animating");
+      root.style.setProperty("--apple-wash-cur-opacity", "0");
+      root.style.setProperty("--apple-wash-next-opacity", "1");
+      root.style.setProperty("--apple-wash-scale", "1");
+      washTimer = setTimeout(() => {
+        if (token !== gen) return;
+        washTimer = 0;
+        snapWash(root, view);
+      }, WASH_MS + 40);
+    });
+  }
+
   function setView() {
     try {
       const root = document.documentElement;
       if (!markPanel(root)) {
         last = "";
         gen += 1;
-        root.classList.remove("apple-wash-animating");
+        clearWashTimer();
+        resetWashVars(root);
         root.removeAttribute("data-view");
-        root.removeAttribute("data-view-next");
-        root.style.setProperty("--apple-wash-cur-opacity", "1");
-        root.style.setProperty("--apple-wash-next-opacity", "0");
-        root.style.setProperty("--apple-wash-scale", "1");
         if (document.body) document.body.removeAttribute("data-view");
         return;
       }
       const m = (location.pathname || "").match(/\/dashboard-(?:x|timo|juli|mika|gabi)\/([^\/\?]+)/);
       const view = m ? m[1] : "haus";
-
-      /* Home Assistant can dispatch several navigation events during one
-       * view replacement. Apply the final wash atomically so an interrupted
-       * crossfade can never leave both gradient layers transparent/black. */
-      gen += 1;
-      last = view;
-      snapWash(root, view);
+      animateWash(root, view);
     } catch (_e) {}
   }
+
   setView();
   window.addEventListener("location-changed", setView);
   window.addEventListener("popstate", setView);

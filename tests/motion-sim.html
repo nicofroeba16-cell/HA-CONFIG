@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <base href="/">
+  <title>HA Dashboard Motion Acceptance</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: #f5f5f7; overflow-x: hidden; }
+    .app { min-height: 100vh; padding: 18px 14px 116px; position: relative; }
+    .topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 2px 14px; }
+    .eyebrow { font-size: 12px; font-weight: 650; color: #c7c7cc; text-transform: uppercase; letter-spacing: .08em; }
+    h1 { margin: 2px 0 0; font-size: 32px; line-height: 1.05; letter-spacing: -.035em; }
+    .status { border-radius: 999px; padding: 7px 10px; background: rgba(118,118,128,.26); font-size: 12px; font-weight: 650; backdrop-filter: blur(18px); }
+    .status.offline { color: #ff6961; background: rgba(255,105,97,.14); }
+    .hint { margin: 10px 0 14px; color: #c7c7cc; font-size: 13px; line-height: 1.35; }
+  </style>
+  <script>history.replaceState({}, "", "/dashboard-x/haus");</script>
+  <script src="/apple-optik.js"></script>
+  <script src="/apple-mobile-gradient.js"></script>
+</head>
+<body>
+  <style>
+    .stack { display: grid; gap: 10px; }
+    .demo-card { width: 100%; border: 0; text-align: left; color: inherit; padding: 14px; border-radius: 20px; background: rgba(28,28,30,.82); border: .5px solid rgba(255,255,255,.14); backdrop-filter: saturate(160%) blur(20px); -webkit-tap-highlight-color: transparent; }
+    .demo-card .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .demo-card strong { font-size: 15px; }
+    .demo-card small { display: block; margin-top: 2px; color: #c7c7cc; font-size: 12px; }
+    .chev { font-size: 22px; color: #8e8e93; }
+    .demo-card, .nav button, .sheet, .scrim { transition: transform .22s cubic-bezier(.32,.72,0,1), opacity .22s cubic-bezier(.22,.61,.36,1), background-color .22s cubic-bezier(.22,.61,.36,1); }
+    .demo-card:active { transform: scale(.985); }
+    .nav { position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 7px; border-radius: 27px; background: rgba(28,28,30,.68); border: .5px solid rgba(255,255,255,.18); backdrop-filter: saturate(180%) blur(28px); }
+    .nav button { min-height: 48px; border: 0; border-radius: 20px; background: transparent; color: #c7c7cc; font: inherit; font-size: 11px; font-weight: 650; }
+    .nav button.active { color: #f5f5f7; background: rgba(232,181,122,.19); }
+    .nav button:active { transform: scale(.94); }
+    .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.42); opacity: 0; pointer-events: none; }
+    .sheet { position: fixed; z-index: 21; left: 10px; right: 10px; bottom: 10px; min-height: 242px; padding: 14px; border-radius: 28px; background: rgba(36,36,38,.96); border: .5px solid rgba(255,255,255,.18); backdrop-filter: saturate(180%) blur(30px); transform: translate3d(0,112%,0) scale(.985); opacity: .5; }
+    .detail-open .scrim { opacity: 1; pointer-events: auto; }
+    .detail-open .sheet { transform: translate3d(0,0,0) scale(1); opacity: 1; }
+    .grabber { width: 38px; height: 5px; border-radius: 5px; background: rgba(255,255,255,.28); margin: 0 auto 16px; }
+    .sheet h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+    .sheet p { color: #c7c7cc; font-size: 13px; line-height: 1.45; }
+  </style>
+  <style>
+    .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .metric { padding: 12px; border-radius: 18px; background: rgba(44,44,46,.72); border: .5px solid rgba(255,255,255,.12); }
+    .metric span { display: block; color: #8e8e93; font-size: 11px; }
+    .metric b { display: block; margin-top: 3px; font-size: 17px; }
+    .signal { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: #30d158; }
+    .status.offline .signal { background: #ff6961; }
+    @media (prefers-reduced-transparency: reduce) {
+      .demo-card, .nav, .sheet, .status { backdrop-filter: none; background-color: rgba(28,28,30,.97); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .demo-card, .nav button, .sheet, .scrim { transition-duration: .01s !important; animation: none !important; }
+      .demo-card:active, .nav button:active { transform: none; }
+    }
+  </style>
+  <main class="app" id="app">
+    <header class="topbar">
+      <div><div class="eyebrow">Zuhause · Motion Lab</div><h1 id="viewTitle">Haus</h1></div>
+      <div class="status" id="connection"><span class="signal"></span><span id="connectionLabel">Verbunden</span></div>
+    </header>
+    <p class="hint" id="hint">Repo-Simulation mit den echten Apple-Optik Custom Cards und Route-Styles.</p>
+    <section class="stack" aria-label="Motion test cards">
+      <ios-light-card id="lightCard"></ios-light-card>
+      <ios-media-player id="mediaCard"></ios-media-player>
+      <button class="demo-card" id="detailTrigger" type="button">
+        <div class="row"><div><strong>Details</strong><small>Sheet öffnen und schließen</small></div><span class="chev">›</span></div>
+      </button>
+      <div class="metric-grid">
+        <div class="metric"><span>Route</span><b id="routeMetric">haus</b></div>
+        <div class="metric"><span>Entity</span><b id="entityMetric">bereit</b></div>
+      </div>
+    </section>
+  </main>
+  <div class="scrim" id="scrim"></div>
+  <section class="sheet" id="sheet" aria-hidden="true">
+    <div class="grabber"></div>
+    <h2>Wohnzimmer</h2>
+    <p>Detailansicht mit kurzer, gedämpfter iOS-Transition. Keine Daueranimation.</p>
+    <div class="metric-grid">
+      <div class="metric"><span>Licht</span><b id="sheetLight">Aus</b></div>
+      <div class="metric"><span>Player</span><b id="sheetMedia">Bereit</b></div>
+    </div>
+  </section>
+  <nav class="nav" aria-label="Dashboard navigation">
+    <button class="active" data-view="haus">Haus</button>
+    <button data-view="medien">Medien</button>
+    <button data-view="system">System</button>
+    <button data-view="wohnzimmer">Raum</button>
+  </nav>
+  <script>
+    const FEAT = { PAUSE:1, SEEK:2, VOLUME_SET:4, VOLUME_MUTE:8, PREVIOUS:16, NEXT:32, TURN_ON:128, TURN_OFF:256, STOP:4096, PLAY:16384 };
+    const allFeatures = Object.values(FEAT).reduce((a, b) => a | b, 0);
+    const hass = {
+      states: {},
+      callService() {},
+      hassUrl(path) { return path; },
+    };
+    const lightCard = document.getElementById('lightCard');
+    const mediaCard = document.getElementById('mediaCard');
+    lightCard.setConfig({ entity: 'light.acceptance', name: 'Stehlampe' });
+    mediaCard.setConfig({ entity: 'media_player.acceptance', name: 'Apple TV', volume: true });
+
+    function lightState(state = 'off') {
+      if (state === 'loading') delete hass.states['light.acceptance'];
+      else hass.states['light.acceptance'] = {
+        entity_id: 'light.acceptance',
+        state,
+        attributes: state === 'on'
+          ? { friendly_name: 'Stehlampe', brightness: 178, rgb_color: [255, 214, 10], supported_color_modes: ['brightness'] }
+          : { friendly_name: 'Stehlampe', supported_color_modes: ['brightness'] },
+      };
+      lightCard.hass = hass;
+      document.getElementById('sheetLight').textContent = state === 'on' ? 'Ein' : state === 'unavailable' ? 'Nicht verfügbar' : state === 'loading' ? 'Lädt' : 'Aus';
+      document.getElementById('entityMetric').textContent = state;
+    }
+    function mediaState(state = 'idle') {
+      if (state === 'loading') delete hass.states['media_player.acceptance'];
+      else hass.states['media_player.acceptance'] = {
+        entity_id: 'media_player.acceptance',
+        state,
+        attributes: {
+          friendly_name: 'Apple TV',
+          supported_features: allFeatures,
+          volume_level: 0.34,
+          media_title: state === 'playing' ? 'Severance' : '',
+          media_artist: state === 'playing' ? 'Apple TV+' : '',
+          media_duration: state === 'playing' ? 3200 : 0,
+          media_position: state === 'playing' ? 1180 : 0,
+          media_position_updated_at: new Date().toISOString(),
+        },
+      };
+      mediaCard.hass = hass;
+      document.getElementById('sheetMedia').textContent = state === 'playing' ? 'Wiedergabe' : state === 'unavailable' ? 'Nicht verfügbar' : state === 'loading' ? 'Lädt' : 'Bereit';
+    }
+
+    const titles = { haus: 'Haus', medien: 'Medien', system: 'System', wohnzimmer: 'Wohnzimmer' };
+    function navigate(view) {
+      history.pushState({}, '', `/dashboard-x/${view}`);
+      window.dispatchEvent(new Event('location-changed'));
+      document.getElementById('viewTitle').textContent = titles[view] || view;
+      document.getElementById('routeMetric').textContent = view;
+      document.querySelectorAll('.nav button').forEach((button) => button.classList.toggle('active', button.dataset.view === view));
+    }
+    function openDetail() {
+      document.body.classList.add('detail-open');
+      document.getElementById('sheet').setAttribute('aria-hidden', 'false');
+    }
+    function closeDetail() {
+      document.body.classList.remove('detail-open');
+      document.getElementById('sheet').setAttribute('aria-hidden', 'true');
+    }
+    function connection(online) {
+      const el = document.getElementById('connection');
+      el.classList.toggle('offline', !online);
+      document.getElementById('connectionLabel').textContent = online ? 'Verbunden' : 'Offline';
+    }
+    function reconnectPhase(online) {
+      connection(online);
+      if (!online) { lightState('unavailable'); mediaState('unavailable'); }
+      else { lightState('on'); mediaState('playing'); }
+    }
+    function rapidNavigation() {
+      ['medien', 'system', 'wohnzimmer', 'haus'].forEach((view, index) => setTimeout(() => navigate(view), index * 45));
+    }
+    document.querySelectorAll('.nav button').forEach((button) => button.addEventListener('click', () => navigate(button.dataset.view)));
+    document.getElementById('detailTrigger').addEventListener('click', openDetail);
+    document.getElementById('scrim').addEventListener('click', closeDetail);
+    document.addEventListener('hass-more-info', openDetail);
+    lightState('off');
+    mediaState('idle');
+    window.motionDemo = {
+      navigate, lightState, mediaState, openDetail, closeDetail, reconnectPhase, rapidNavigation,
+      diagnostics() {
+        const root = document.documentElement;
+        return {
+          path: location.pathname,
+          panel: root.getAttribute('data-panel'),
+          view: root.getAttribute('data-view'),
+          viewNext: root.getAttribute('data-view-next'),
+          overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+          rootStyleCount: document.querySelectorAll('#apple-optik-root').length,
+          mobileStyleCount: document.querySelectorAll('#apple-mobile-gradient').length,
+          transparencyStyleCount: document.querySelectorAll('#apple-mobile-gradient-transparency').length,
+          lightMotionState: lightCard.shadowRoot?.querySelector('.wrap')?.dataset.motionState || null,
+          mediaMotionState: mediaCard.shadowRoot?.querySelector('.wrap')?.dataset.motionState || null,
+          detailOpen: document.body.classList.contains('detail-open'),
+        };
+      },
+    };
+  </script>
+</body>
+</html>
