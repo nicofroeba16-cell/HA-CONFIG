@@ -18,7 +18,7 @@ navbar-templates:
         label: Wohnzimmer
       - icon: mdi:home
         url: /dashboard-gabi/haus
-        label: Home
+        label: Zuhause
       - icon: mdi:door
         url: /dashboard-gabi/flur
         label: Flur
@@ -97,7 +97,7 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: Zuhause
-            subtitle: Health · System
+            subtitle: Systemzustand
           - type: custom:mushroom-chips-card
             alignment: center
             chips:
@@ -105,7 +105,7 @@ views:
                 content: >-
                   {% set wan =
                   states('binary_sensor.fritz_box_6670_cable_wan_status') %} {{
-                  'Online' if wan == 'on' else 'Offline' }}
+                  'Verbunden' if wan == 'on' else 'Getrennt' }}
                 icon: mdi:web
                 icon_color: >-
                   {{ 'green' if
@@ -148,10 +148,10 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: Bereiche
-            subtitle: Live-Status & Navigation
+            subtitle: Aktueller Status und Navigation
           - type: custom:mushroom-template-card
             primary: Nico-Zimmer
-            secondary: Dein Bereich · Medien & Licht
+            secondary: Dein Bereich · Medien und Licht
             icon: mdi:home-floor-negative-1
             icon_color: deep-purple
             vertical: true
@@ -175,7 +175,7 @@ views:
               rows: auto
           - type: custom:mushroom-template-card
             primary: Hütte
-            secondary: Gartenhaus & AVR
+            secondary: Gartenhaus und AVR
             icon: mdi:home-variant
             icon_color: orange
             vertical: true
@@ -214,11 +214,11 @@ views:
       - type: grid
         cards:
           - type: custom:mushroom-title-card
-            title: System & Geräte
+            title: System und Geräte
             subtitle: Infrastruktur
           - type: custom:mushroom-template-card
             primary: System
-            secondary: Netzwerk · Backup
+            secondary: Netzwerk · Sicherung
             icon: mdi:server-network
             icon_color: teal
             tap_action:
@@ -489,7 +489,7 @@ views:
                 state: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Licht Master
+              primary: Lichtsteuerung
               secondary: Geräte an
               icon: mdi:power
               icon_color: green
@@ -509,7 +509,7 @@ views:
                 state_not: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Licht Master
+              primary: Lichtsteuerung
               secondary: Alles aus
               icon: mdi:power
               icon_color: red
@@ -534,7 +534,7 @@ views:
       - type: grid
         cards:
           - type: custom:mushroom-title-card
-            title: Medien-Center
+            title: Medienzentrale
             subtitle: Apple TV · Denon · PS5
           - type: conditional
             conditions:
@@ -542,7 +542,7 @@ views:
                 state: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Medien Master
+              primary: Mediensteuerung
               secondary: Geräte aktiv
               icon: mdi:power
               icon_color: green
@@ -562,7 +562,7 @@ views:
                 state_not: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Medien Master
+              primary: Mediensteuerung
               secondary: Alles aus
               icon: mdi:power
               icon_color: red
@@ -618,7 +618,7 @@ views:
                 state: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Medien Master
+              primary: Mediensteuerung
               secondary: Geräte aktiv
               icon: mdi:power
               icon_color: green
@@ -635,7 +635,7 @@ views:
                 state_not: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Medien Master
+              primary: Mediensteuerung
               secondary: Alles aus
               icon: mdi:power
               icon_color: red
@@ -685,7 +685,7 @@ views:
         cards:
           - type: custom:navbar-card
             template: gabi_nav
-  - title: System & Netzwerk
+  - title: System und Netzwerk
     path: system
     icon: mdi:server-network
     subview: true
@@ -697,13 +697,13 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: FRITZ!Box
-            subtitle: Internet & Router
+            subtitle: Internet und Router
           - type: custom:mushroom-template-card
-            primary: Internet Status
+            primary: Internetstatus
             secondary: >-
               {% set wan =
               states('binary_sensor.fritz_box_6670_cable_wan_status') %} {{
-              'Verbunden' if wan == 'on' else ('Offline' if wan == 'off' else
+              'Verbunden' if wan == 'on' else ('Getrennt' if wan == 'off' else
               'Unbekannt') }}
             icon: mdi:web
             icon_color: >-
@@ -772,7 +772,7 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: AdGuard Home
-            subtitle: DNS-Schutz & Filterung
+            subtitle: DNS-Schutz und Filterung
           - type: custom:mushroom-template-card
             entity: switch.adguard_home_schutz
             primary: AdGuard Schutz
@@ -791,13 +791,13 @@ views:
       - type: grid
         cards:
           - type: custom:mushroom-title-card
-            title: System Updates
-            subtitle: Home Assistant & Backup
+            title: Systemaktualisierungen
+            subtitle: Home Assistant und Sicherung
           - type: custom:mushroom-template-card
             entity: update.home_assistant_core_update
-            primary: Core Update
+            primary: Core-Aktualisierung
             secondary: >-
-              {{ 'Update verfügbar' if
+              {{ 'Aktualisierung verfügbar' if
               is_state('update.home_assistant_core_update','on') else 'Aktuell'
               }}
             icon: mdi:home-assistant
@@ -806,9 +806,9 @@ views:
               else 'green' }}
           - type: custom:mushroom-template-card
             entity: update.home_assistant_operating_system_update
-            primary: OS Update
+            primary: OS-Aktualisierung
             secondary: >-
-              {{ 'Update verfügbar' if
+              {{ 'Aktualisierung verfügbar' if
               is_state('update.home_assistant_operating_system_update','on')
               else 'Aktuell' }}
             icon: mdi:server
@@ -817,12 +817,12 @@ views:
               is_state('update.home_assistant_operating_system_update','on')
               else 'green' }}
           - type: custom:mushroom-template-card
-            primary: Letztes Backup
+            primary: Letzte Sicherung
             secondary: >-
               {% set b =
               states('sensor.backup_last_successful_automatic_backup') %} {% if
               b in ['unknown','unavailable','none',''] %}
-                Kein Backup bekannt
+                Keine Sicherung bekannt
               {% else %}
                 {% set dt = as_datetime(b, default=none) %}
                 {% set hours = ((as_timestamp(now()) - as_timestamp(dt)) / 3600) | int %}
@@ -933,7 +933,7 @@ views:
                 action: toggle
           - type: custom:mushroom-template-card
             entity: input_boolean.backup_warnung_quittiert
-            primary: Backup
+            primary: Sicherung
             secondary: >-
               {% set b =
               states('sensor.backup_last_successful_automatic_backup') %} {% set
@@ -942,11 +942,11 @@ views:
               is_state('input_boolean.backup_warnung_quittiert','on') %}
                 ✓ Warnung gelesen
               {% elif ts == 0 %}
-                Kein erfolgreiches Backup bekannt
+                Keine erfolgreiche Sicherung bekannt
               {% elif hours > 24 %}
-                Letztes Backup vor {{ hours | round(0) }} Stunden
+                Letzte Sicherung vor {{ hours | round(0) }} Stunden
               {% else %}
-                Letztes Backup ok
+                Letzte Sicherung in Ordnung
               {% endif %}
             icon: >-
               {{ 'mdi:check-circle' if
@@ -977,9 +977,9 @@ views:
               secondary: >-
                 {% if
                 is_state('input_boolean.core_update_warnung_quittiert','on') %}
-                  ✓ Update-Warnung gelesen
+                  ✓ Aktualisierungswarnung gelesen
                 {% else %}
-                  Neues Core-Update verfügbar
+                  Neue Core-Aktualisierung verfügbar
                 {% endif %}
               icon: >-
                 {{ 'mdi:check-circle' if
@@ -1002,9 +1002,9 @@ views:
               secondary: >-
                 {% if is_state('input_boolean.os_update_warnung_quittiert','on')
                 %}
-                  ✓ Update-Warnung gelesen
+                  ✓ Aktualisierungswarnung gelesen
                 {% else %}
-                  Neues OS-Update verfügbar
+                  Neue OS-Aktualisierung verfügbar
                 {% endif %}
               icon: >-
                 {{ 'mdi:check-circle' if
@@ -1111,7 +1111,7 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: Status
-            subtitle: Presence & Akkus
+            subtitle: Anwesenheit und Akkus
           - type: custom:mushroom-chips-card
             chips:
               - type: template
@@ -1172,7 +1172,7 @@ views:
                 state: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Licht Master
+              primary: Lichtsteuerung
               secondary: Geräte an
               icon: mdi:power
               icon_color: green
@@ -1190,7 +1190,7 @@ views:
                 state_not: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Licht Master
+              primary: Lichtsteuerung
               secondary: Alles aus
               icon: mdi:power
               icon_color: red
@@ -1240,7 +1240,7 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: Pool
-            subtitle: Temperatur & Steuerung
+            subtitle: Temperatur und Steuerung
           - type: custom:mushroom-template-card
             primary: >-
               {% set t = states('sensor.vertical_pool_heat_pump_temperatur') %}
@@ -1267,7 +1267,7 @@ views:
         cards:
           - type: custom:mushroom-title-card
             title: Mähroboter
-            subtitle: Status & Akku
+            subtitle: Status und Akku
           - type: custom:mushroom-template-card
             primary: Status
             secondary: >-
@@ -1469,7 +1469,7 @@ views:
                 state_not: unknown
             card:
               type: custom:mushroom-template-card
-              primary: TV Master
+              primary: TV-Steuerung
               secondary: Fernseher an
               icon: mdi:power
               icon_color: green
@@ -1489,7 +1489,7 @@ views:
                 state: 'off'
             card:
               type: custom:mushroom-template-card
-              primary: TV Master
+              primary: TV-Steuerung
               secondary: Fernseher aus
               icon: mdi:power
               icon_color: red
@@ -1507,7 +1507,7 @@ views:
                 state: 'on'
             card:
               type: custom:mushroom-template-card
-              primary: Licht Master
+              primary: Lichtsteuerung
               secondary: Licht an
               icon: mdi:power
               icon_color: green
@@ -1527,7 +1527,7 @@ views:
                 state: 'off'
             card:
               type: custom:mushroom-template-card
-              primary: Licht Master
+              primary: Lichtsteuerung
               secondary: Licht aus
               icon: mdi:power
               icon_color: red

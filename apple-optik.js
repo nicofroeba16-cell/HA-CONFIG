@@ -12,7 +12,7 @@
 
 /* ===== optik ===== */
 (function () {
-const VERSION = "1.9.28";
+const VERSION = "1.9.29";
 const STYLE_ID = "apple-optik";
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";       // Apple default
 const EASE_WASH = "cubic-bezier(0.22, 0.61, 0.36, 1)"; // Wash / View-Wechsel
@@ -24,8 +24,8 @@ html {
   color-scheme: light dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--apple-bg, #000);
-  --lovelace-background: var(--apple-bg, #000000);
+  background: var(--primary-background-color, var(--apple-bg, #000));
+  --lovelace-background: var(--primary-background-color, var(--apple-bg, #000000));
   --apple-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --apple-ease-wash: cubic-bezier(0.22, 0.61, 0.36, 1);
   --apple-ease-snap: cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -33,6 +33,13 @@ html {
   --apple-motion-base: 0.28s;
   --apple-motion-route: 0.32s;
   --apple-motion-distance: 6px;
+  --apple-content-surface: var(--ha-card-background, var(--card-background-color, var(--apple-surface, #1c1c1e)));
+  --apple-content-label: var(--primary-text-color, var(--apple-label, #f5f5f7));
+  --apple-content-secondary: var(--secondary-text-color, var(--apple-secondary, #c7c7cc));
+  --apple-divider: var(--divider-color, var(--apple-hairline, rgba(255,255,255,0.14)));
+  --apple-control-glass: color-mix(in srgb, var(--primary-background-color, #1c1c1e) 62%, transparent);
+  --apple-control-glass-strong: color-mix(in srgb, var(--primary-background-color, #1c1c1e) 70%, transparent);
+  --apple-control-glass-opaque: var(--primary-background-color, #1c1c1e);
 }
 
 html[data-panel="dash"]::before,
@@ -43,7 +50,7 @@ html[data-panel="dash"]::after {
   pointer-events: none;
   z-index: 0;
   transform-origin: 50% 0;
-  background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-panel="dash"]::before {
   opacity: var(--apple-wash-cur-opacity, 1);
@@ -114,59 +121,59 @@ home-assistant, ha-app-layout, hui-view, hui-sections-view {
 /* Per-View: Token-Wash. ::after = incoming (data-view-next), nur Opacity. */
 html[data-view="haus"]::before,
 html[data-view-next="haus"]::after {
-  background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="mobilgeraete"]::before,
 html[data-view-next="mobilgeraete"]::after {
-  background: linear-gradient(180deg, rgba(100,210,255,0.26) 0%, rgba(100,210,255,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(100,210,255,0.26) 0%, rgba(100,210,255,0.08) 42%, rgba(125,122,255,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="nico-zimmer"]::before,
 html[data-view-next="nico-zimmer"]::after {
-  background: linear-gradient(180deg, rgba(125,122,255,0.28) 0%, rgba(125,122,255,0.08) 42%, rgba(232,181,122,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(125,122,255,0.28) 0%, rgba(125,122,255,0.08) 42%, rgba(232,181,122,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="medien"]::before,
 html[data-view-next="medien"]::after {
-  background: linear-gradient(180deg, rgba(100,210,255,0.28) 0%, rgba(100,210,255,0.08) 42%, rgba(232,181,122,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(100,210,255,0.28) 0%, rgba(100,210,255,0.08) 42%, rgba(232,181,122,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="system"]::before,
 html[data-view-next="system"]::after {
-  background: linear-gradient(180deg, rgba(142,142,147,0.24) 0%, rgba(142,142,147,0.08) 42%, rgba(232,181,122,0.05) 100%), #000;
+  background: linear-gradient(180deg, rgba(142,142,147,0.24) 0%, rgba(142,142,147,0.08) 42%, rgba(232,181,122,0.05) 100%), var(--primary-background-color, #000);
 }
 html[data-view="system-warnungen"]::before,
 html[data-view-next="system-warnungen"]::after {
-  background: linear-gradient(180deg, rgba(255,105,97,0.28) 0%, rgba(255,105,97,0.08) 42%, rgba(232,181,122,0.05) 100%), #000;
+  background: linear-gradient(180deg, rgba(255,105,97,0.28) 0%, rgba(255,105,97,0.08) 42%, rgba(232,181,122,0.05) 100%), var(--primary-background-color, #000);
 }
 html[data-view="timo-zimmer"]::before,
 html[data-view-next="timo-zimmer"]::after {
-  background: linear-gradient(180deg, rgba(48,219,91,0.26) 0%, rgba(48,219,91,0.08) 42%, rgba(232,181,122,0.05) 100%), #000;
+  background: linear-gradient(180deg, rgba(48,219,91,0.26) 0%, rgba(48,219,91,0.08) 42%, rgba(232,181,122,0.05) 100%), var(--primary-background-color, #000);
 }
 html[data-view="huette"]::before,
 html[data-view-next="huette"]::after {
-  background: linear-gradient(180deg, rgba(255,179,64,0.28) 0%, rgba(255,179,64,0.08) 42%, rgba(232,181,122,0.05) 100%), #000;
+  background: linear-gradient(180deg, rgba(255,179,64,0.28) 0%, rgba(255,179,64,0.08) 42%, rgba(232,181,122,0.05) 100%), var(--primary-background-color, #000);
 }
 html[data-view="aussenbereich"]::before,
 html[data-view-next="aussenbereich"]::after {
-  background: linear-gradient(180deg, rgba(48,219,91,0.26) 0%, rgba(48,219,91,0.08) 42%, rgba(64,203,224,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(48,219,91,0.26) 0%, rgba(48,219,91,0.08) 42%, rgba(64,203,224,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="erdgeschoss"]::before,
 html[data-view-next="erdgeschoss"]::after {
-  background: linear-gradient(180deg, rgba(64,203,224,0.26) 0%, rgba(64,203,224,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(64,203,224,0.26) 0%, rgba(64,203,224,0.08) 42%, rgba(125,122,255,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="mika-zimmer"]::before,
 html[data-view-next="mika-zimmer"]::after {
-  background: linear-gradient(180deg, rgba(10,132,255,0.28) 0%, rgba(10,132,255,0.08) 42%, rgba(232,181,122,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(10,132,255,0.28) 0%, rgba(10,132,255,0.08) 42%, rgba(232,181,122,0.06) 100%), var(--primary-background-color, #000);
 }
 html[data-view="juli-zimmer"]::before,
 html[data-view-next="juli-zimmer"]::after {
-  background: linear-gradient(180deg, rgba(255,55,95,0.42) 0%, rgba(255,55,95,0.16) 42%, rgba(255,55,95,0.04) 100%), #000;
+  background: linear-gradient(180deg, rgba(255,55,95,0.42) 0%, rgba(255,55,95,0.16) 42%, rgba(255,55,95,0.04) 100%), var(--primary-background-color, #000);
 }
 html[data-view="flur"]::before,
 html[data-view-next="flur"]::after {
-  background: linear-gradient(180deg, rgba(142,142,147,0.24) 0%, rgba(142,142,147,0.08) 42%, rgba(232,181,122,0.05) 100%), #000;
+  background: linear-gradient(180deg, rgba(142,142,147,0.24) 0%, rgba(142,142,147,0.08) 42%, rgba(232,181,122,0.05) 100%), var(--primary-background-color, #000);
 }
 html[data-view="wohnzimmer"]::before,
 html[data-view-next="wohnzimmer"]::after {
-  background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), #000;
+  background: linear-gradient(180deg, rgba(232,181,122,0.28) 0%, rgba(232,181,122,0.08) 42%, rgba(125,122,255,0.06) 100%), var(--primary-background-color, #000);
 }
 
 
@@ -179,7 +186,7 @@ hui-sections-view {
 /* GPU-Schicht: 3D-Transform erzwingt Compositor, kein Layout-Thrash */
 ha-card {
   background: var(--ha-card-background, var(--apple-surface, #1C1C1E)) !important;
-  border: 0.5px solid var(--apple-hairline, rgba(255, 255, 255, 0.14)) !important;
+  border: 0.5px solid var(--apple-divider, var(--apple-hairline, rgba(255, 255, 255, 0.14))) !important;
   border-radius: var(--ha-card-border-radius, 20px) !important;
   box-shadow: none !important;
   overflow: hidden;
@@ -260,7 +267,7 @@ mushroom-person-card {
   --card-primary-color: var(--mush-card-primary-color, var(--apple-label, #f5f5f7));
   --card-secondary-color: var(--mush-card-secondary-color, var(--apple-secondary, #c7c7cc));
   --primary-text-color: var(--apple-label, #f5f5f7);
-  --secondary-text-color: var(--apple-secondary, #c7c7cc);
+  --secondary-text-color: var(--apple-content-secondary, var(--apple-secondary, #c7c7cc));
 }
 
 mushroom-title-card {
@@ -332,12 +339,12 @@ hui-header,
   height: auto !important;
   min-height: 44px !important;
   overflow: visible !important;
-  background: rgba(28, 28, 30, 0.55) !important;
+  background: var(--apple-control-glass, rgba(28, 28, 30, 0.55)) !important;
   -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
   backdrop-filter: saturate(180%) blur(28px) !important;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  border-bottom: 0.5px solid var(--apple-divider, rgba(255, 255, 255, 0.18)) !important;
   box-shadow: none !important;
-  color: var(--apple-label, #f5f5f7) !important;
+  color: var(--apple-content-label, var(--apple-label, #f5f5f7)) !important;
 }
 
 /* Home-Screen-App (Safari standalone) — HA-Verwaltung bleibt in der Companion */
@@ -422,10 +429,10 @@ ha-control-slider, ha-bar-slider, mushroom-slider {
 .navbar.mobile ha-card,
 ha-card.navbar-card.mobile,
 ha-card.navbar-card.mobile.floating {
-  background: rgba(28, 28, 30, 0.62) !important;
+  background: var(--apple-control-glass-strong, rgba(28, 28, 30, 0.62)) !important;
   -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
   backdrop-filter: saturate(180%) blur(28px) !important;
-  border: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  border: 0.5px solid var(--apple-divider, rgba(255, 255, 255, 0.18)) !important;
   border-radius: 28px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
   -webkit-transform: translate3d(0, 0, 0);
@@ -461,10 +468,10 @@ ha-card.navbar-card.mobile.floating {
 }
 
 app-header, app-toolbar, ha-tabs {
-  background: rgba(28, 28, 30, 0.55) !important;
+  background: var(--apple-control-glass, rgba(28, 28, 30, 0.55)) !important;
   -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
   backdrop-filter: saturate(180%) blur(28px) !important;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  border-bottom: 0.5px solid var(--apple-divider, rgba(255, 255, 255, 0.18)) !important;
   box-shadow: none !important;
   -webkit-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
@@ -509,7 +516,7 @@ ha-dialog { --ha-dialog-border-radius: 28px; }
   .navbar.mobile ha-card, ha-card.navbar-card.mobile, ha-card.navbar-card.mobile.floating {
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
-    background: rgba(28, 28, 30, 0.96) !important;
+    background: var(--apple-control-glass-opaque, rgba(28, 28, 30, 0.96)) !important;
   }
 }
 
@@ -569,7 +576,7 @@ hui-view-background::after {
 }
 ha-card {
   background: var(--ha-card-background, var(--apple-surface, #1c1c1e)) !important;
-  border: 0.5px solid var(--apple-hairline, rgba(255, 255, 255, 0.14)) !important;
+  border: 0.5px solid var(--apple-divider, var(--apple-hairline, rgba(255, 255, 255, 0.14))) !important;
   border-radius: var(--ha-card-border-radius, 20px) !important;
   box-shadow: none !important;
   -webkit-tap-highlight-color: transparent;
@@ -611,7 +618,7 @@ ha-icon, ha-state-icon, .icon {
   --icon-primary-color: #ffffff !important;
 }
 .toolbar {
-  background: rgba(28, 28, 30, 0.55) !important;
+  background: var(--apple-control-glass, rgba(28, 28, 30, 0.55)) !important;
   backdrop-filter: saturate(180%) blur(28px) !important;
   -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
 }
@@ -662,10 +669,10 @@ app-toolbar {
   min-height: 44px !important;
   overflow: visible !important;
   pointer-events: auto !important;
-  background: rgba(28, 28, 30, 0.55) !important;
+  background: var(--apple-control-glass, rgba(28, 28, 30, 0.55)) !important;
   -webkit-backdrop-filter: saturate(180%) blur(28px) !important;
   backdrop-filter: saturate(180%) blur(28px) !important;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.18) !important;
+  border-bottom: 0.5px solid var(--apple-divider, rgba(255, 255, 255, 0.18)) !important;
   box-shadow: none !important;
 }
 `;
@@ -797,7 +804,6 @@ function markAppShell() {
 }
 
 function boot() {
-  document.documentElement.style.colorScheme = "dark";
   markAppShell();
   paint();
   const obs = new MutationObserver((muts) => {
@@ -873,10 +879,10 @@ const CSS = `
 .wrap {
   box-sizing: border-box;
   border-radius: 20px;
-  background: var(--apple-surface, #1c1c1e);
-  border: 0.5px solid var(--apple-hairline, rgba(255,255,255,0.14));
+  background: var(--apple-content-surface, var(--apple-surface, #1c1c1e));
+  border: 0.5px solid var(--apple-divider, var(--apple-hairline, rgba(255,255,255,0.14)));
   padding: 10px 12px;
-  color: var(--apple-label, #f5f5f7);
+  color: var(--apple-content-label, var(--apple-label, #f5f5f7));
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-transform: translate3d(0,0,0);
@@ -918,16 +924,16 @@ const CSS = `
   gap: 4px;
 }
 .wrap.on {
-  height: 128px;
+  height: 146px;
   display: grid;
   grid-template-columns: 84px 1fr auto;
-  grid-template-rows: 20px 16px 40px 32px;
+  grid-template-rows: 20px 16px 40px 44px;
   column-gap: 12px;
   row-gap: 2px;
 }
-.wrap.on.has-vol { height: 156px; grid-template-rows: 20px 16px 40px 32px 28px; }
-.wrap.on.has-apps { height: 168px; grid-template-rows: 20px 16px 40px 32px 40px; }
-.wrap.on.has-vol.has-apps { height: 196px; grid-template-rows: 20px 16px 40px 32px 28px 40px; }
+.wrap.on.has-vol { height: 180px; grid-template-rows: 20px 16px 40px 44px 32px; }
+.wrap.on.has-apps { height: 192px; grid-template-rows: 20px 16px 40px 44px 44px; }
+.wrap.on.has-vol.has-apps { height: 226px; grid-template-rows: 20px 16px 40px 44px 32px 44px; }
 .wrap.receiver {
   height: 92px;
   display: grid;
@@ -986,16 +992,16 @@ const CSS = `
   color: var(--apple-tertiary, #8e8e93);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.title.on { color: var(--apple-label, #f5f5f7); }
+.title.on { color: var(--apple-content-label, var(--apple-label, #f5f5f7)); }
 .artist {
   margin-top: 1px; font-size: 13px; font-weight: 500;
-  color: var(--apple-secondary, #c7c7cc);
+  color: var(--apple-content-secondary, var(--apple-secondary, #c7c7cc));
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .iconbtn {
   width: 44px; height: 44px; border: 0; padding: 0; cursor: pointer;
   border-radius: 22px; background: var(--apple-fill, rgba(118,118,128,0.36));
-  color: var(--apple-label, #f5f5f7);
+  color: var(--apple-content-label, var(--apple-label, #f5f5f7));
   display: grid; place-items: center;
 }
 .iconbtn svg { width: 16px; height: 16px; }
@@ -1057,12 +1063,12 @@ const CSS = `
 }
 .btn {
   background: none; border: 0; color: var(--apple-tertiary, #8e8e93);
-  width: 40px; height: 36px; display: grid; place-items: center;
+  width: 44px; height: 44px; display: grid; place-items: center;
   padding: 0; cursor: pointer;
   transition: transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .btn svg { width: 20px; height: 20px; }
-.btn.play { color: var(--apple-label, #f5f5f7); }
+.btn.play { color: var(--apple-content-label, var(--apple-label, #f5f5f7)); }
 .btn.play svg { width: 24px; height: 24px; }
 .btn.stop { color: var(--apple-red, #ff6961); }
 .skiplabel { font-size: 12px; font-weight: 700; letter-spacing: -0.02em; color: var(--apple-label, #f5f5f7); }
@@ -1085,7 +1091,7 @@ const CSS = `
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--apple-secondary, #c7c7cc);
+  color: var(--apple-content-secondary, var(--apple-secondary, #c7c7cc));
   text-align: right;
 }
 .vol {
@@ -1146,7 +1152,7 @@ const CSS = `
 .wrap.has-vol .appbar { grid-row: 6; }
 .wrap:not(.has-apps) .appbar { display: none; }
 .appbar::-webkit-scrollbar { display: none; }
-.appchip { flex: 0 0 auto; height: 32px; padding: 0 12px; border: 0; border-radius: 16px; background: var(--apple-fill, rgba(118,118,128,0.36)); color: var(--apple-label, #f5f5f7); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+.appchip { flex: 0 0 auto; min-width: 44px; height: 44px; padding: 0 14px; border: 0; border-radius: 22px; background: var(--apple-fill, rgba(118,118,128,0.36)); color: var(--apple-content-label, var(--apple-label, #f5f5f7)); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
 `;
 
 function fmtTime(s) {
@@ -1356,7 +1362,7 @@ class IosMediaPlayer extends HTMLElement {
           <div class="title">--</div>
           <div class="artist"></div>
         </div>
-        <button class="iconbtn power" type="button" aria-label="Power">${SVG.power}</button>
+        <button class="iconbtn power" type="button" aria-label="Ein/Aus">${SVG.power}</button>
         <button class="iconbtn cast" type="button" aria-label="Quelle">${SVG.airplay}</button>
         <div class="prog off">
           <input class="seek" type="range" min="0" max="1" step="0.001" value="0">
@@ -1364,7 +1370,7 @@ class IosMediaPlayer extends HTMLElement {
         </div>
         <div class="row">
           <button class="btn prev" type="button" aria-label="Zurück">${SVG.prev}</button>
-          <button class="btn play" type="button" aria-label="Play">${SVG.play}</button>
+          <button class="btn play" type="button" aria-label="Wiedergabe">${SVG.play}</button>
           <button class="btn next" type="button" aria-label="Weiter">${SVG.next}</button>
           <button class="btn stop" type="button" aria-label="Stopp" hidden>${SVG.stop}</button>
         </div>
@@ -1488,7 +1494,7 @@ class IosMediaPlayer extends HTMLElement {
   _render() {
     this._ensure();
     const st = this._st();
-    const name = this._config.name || st?.attributes?.friendly_name || "Player";
+    const name = this._config.name || st?.attributes?.friendly_name || "Wiedergabegerät";
     const receiver = this._config.role === "receiver";
     const idle = !st || ["off", "idle", "standby", "unavailable", "unknown"].includes(st.state);
     const playing = st?.state === "playing";
@@ -1553,7 +1559,7 @@ class IosMediaPlayer extends HTMLElement {
     const canPlay = !idle && !receiver && (hasFeat(st, FEAT.PLAY) || hasFeat(st, FEAT.PAUSE));
     this._play.hidden = !canPlay;
     this._play.innerHTML = playing ? SVG.pause : SVG.play;
-    this._play.setAttribute("aria-label", playing ? "Pause" : "Play");
+    this._play.setAttribute("aria-label", playing ? "Pause" : "Wiedergabe");
     this._prev.hidden = idle || receiver || !hasFeat(st, FEAT.PREVIOUS);
     this._next.hidden = idle || receiver || !hasFeat(st, FEAT.NEXT);
     if (companion) {
@@ -1616,8 +1622,8 @@ window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === "ios-media-player")) {
   window.customCards.push({
     type: "ios-media-player",
-    name: "iOS Media Player",
-    description: "Now Playing Stufe 1",
+    name: "iOS Medienwiedergabe",
+    description: "Aktuelle Wiedergabe · Stufe 1",
   });
 }
 console.info(
@@ -1644,10 +1650,10 @@ const CSS = `
 .wrap {
   box-sizing: border-box;
   border-radius: 20px;
-  background: var(--apple-surface, #1c1c1e);
-  border: 0.5px solid var(--apple-hairline, rgba(255,255,255,0.14));
+  background: var(--apple-content-surface, var(--apple-surface, #1c1c1e));
+  border: 0.5px solid var(--apple-divider, var(--apple-hairline, rgba(255,255,255,0.14)));
   padding: 10px 12px;
-  color: var(--apple-label, #f5f5f7);
+  color: var(--apple-content-label, var(--apple-label, #f5f5f7));
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-transform: translate3d(0,0,0);
@@ -1682,22 +1688,22 @@ const CSS = `
 .wrap.off {
   height: 64px;
   display: grid;
-  grid-template-columns: 36px 1fr auto;
+  grid-template-columns: 44px 1fr auto;
   align-items: center;
   gap: 10px;
 }
 .wrap.on {
-  height: 92px;
+  height: 100px;
   display: grid;
-  grid-template-columns: 36px 1fr;
-  grid-template-rows: 36px 32px;
+  grid-template-columns: 44px 1fr;
+  grid-template-rows: 44px 32px;
   column-gap: 10px;
   row-gap: 4px;
   padding: 10px 12px 8px;
 }
 .wrap.off .bri, .wrap.on .power { display: none; }
 .tile {
-  width: 36px; height: 36px; border-radius: 8px;
+  width: 44px; height: 44px; border-radius: 10px;
   display: grid; place-items: center;
   background: #3a3a3c;
   color: ${WHITE};
@@ -1709,7 +1715,7 @@ const CSS = `
 .wrap.on .mid { grid-column: 2; grid-row: 1; align-self: center; }
 .name {
   font-size: 15px; font-weight: 600; letter-spacing: -0.02em;
-  color: var(--apple-label, #f5f5f7);
+  color: var(--apple-content-label, var(--apple-label, #f5f5f7));
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .sub {
@@ -1882,7 +1888,7 @@ class IosLightCard extends HTMLElement {
           <div class="name"></div>
           <div class="sub"></div>
         </div>
-        <button class="power" type="button" aria-label="Power">${POWER}</button>
+        <button class="power" type="button" aria-label="Ein/Aus">${POWER}</button>
         <input class="bri" type="range" min="1" max="255" step="1" value="128">
       </div>`;
     this._root = this.shadowRoot.querySelector(".wrap");
@@ -1981,7 +1987,7 @@ window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === "ios-light-card")) {
   window.customCards.push({
     type: "ios-light-card",
-    name: "iOS Light",
+    name: "iOS Licht",
     description: "Lichtzeile im iOS-Stil",
   });
 }

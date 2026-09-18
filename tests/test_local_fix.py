@@ -147,7 +147,7 @@ const mediaVersion = "1.5.0";
         version = re.search(r'const VERSION = "([^"]+)"', (ROOT / 'apple-optik.js').read_text())[1]
         self.assertEqual(version, updates.VERSION)
         self.assertIn('/local/apple-optik.js?v=' + version, config)
-        self.assertIn('/local/apple-mobile-gradient.js?v=8', config)
+        self.assertIn('/local/apple-mobile-gradient.js?v=9', config)
 
     def test_syntax(self):
         yaml_paths = list(ROOT.glob('*.yaml')) + list((ROOT / 'dashboards').glob('*.yaml'))

@@ -21,7 +21,7 @@ PROFILES = {
         "routes": [
             ("mdi:home-floor-1", "timo-zimmer", "Timo"),
             ("mdi:home-variant", "huette", "Hütte"),
-            ("mdi:home", "haus", "Home"),
+            ("mdi:home", "haus", "Zuhause"),
             ("mdi:tree", "aussenbereich", "Außen"),
             ("mdi:server-network", "system", "System"),
         ],
@@ -30,7 +30,7 @@ PROFILES = {
         "template": "juli_nav",
         "routes": [
             ("mdi:television-classic", "juli-zimmer", "Juli"),
-            ("mdi:home", "haus", "Home"),
+            ("mdi:home", "haus", "Zuhause"),
             ("mdi:sofa", "wohnzimmer", "Wohnzimmer"),
         ],
     },
@@ -38,7 +38,7 @@ PROFILES = {
         "template": "mika_nav",
         "routes": [
             ("mdi:television", "mika-zimmer", "Mika Zimmer"),
-            ("mdi:home", "haus", "Home"),
+            ("mdi:home", "haus", "Zuhause"),
             ("mdi:play-box-multiple", "medien", "Medien"),
         ],
     },
@@ -46,7 +46,7 @@ PROFILES = {
         "template": "gabi_nav",
         "routes": [
             ("mdi:sofa", "wohnzimmer", "Wohnzimmer"),
-            ("mdi:home", "haus", "Home"),
+            ("mdi:home", "haus", "Zuhause"),
             ("mdi:door", "flur", "Flur"),
         ],
     },

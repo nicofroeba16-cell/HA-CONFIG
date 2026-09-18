@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Idempotent runtime patch for HA dashboards and Apple Optik v1.9.28."""
+"""Idempotent runtime patch for HA dashboards and Apple Optik v1.9.29."""
 from pathlib import Path
 import re
 
-VERSION = "1.9.28"
+VERSION = "1.9.29"
 DASHBOARD_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)(?:\/|$)"
 VIEW_JS = r"\/dashboard-(?:x|timo|juli|mika|gabi)\/([^\/?]+)"
 

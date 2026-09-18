@@ -6,7 +6,7 @@ const { spawn } = require('node:child_process');
 const crypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname, '..');
-const EVIDENCE = path.join(ROOT, 'evidence', 'motion-acceptance');
+const EVIDENCE = path.join(ROOT, 'evidence', 'de-ios27-review-v2');
 fs.mkdirSync(EVIDENCE, { recursive: true });
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -168,6 +168,9 @@ async function diagnostics(cdp) {
       maxTransparencyPerShadowRoot: maxTransparency,
       reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
       reducedTransparency: matchMedia('(prefers-reduced-transparency: reduce)').matches,
+      appearance: matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark',
+      lightCardBackground: (() => { const el=document.querySelector('ios-light-card')?.shadowRoot?.querySelector('.wrap'); return el ? getComputedStyle(el).backgroundColor : null; })(),
+      lightCardColor: (() => { const el=document.querySelector('ios-light-card')?.shadowRoot?.querySelector('.wrap'); return el ? getComputedStyle(el).color : null; })(),
     };
   })()`);
 }
@@ -176,7 +179,7 @@ async function rect(cdp, selector) {
   return evaluate(cdp, `(() => { const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height/2}; })()`);
 }
 async function recordProfile(cdp, baseUrl, profile) {
-  const { name, width, height, reduced } = profile;
+  const { name, width, height, reduced, appearance = 'dark' } = profile;
   const fps = 8;
   const frames = [];
   cdp.events.length = 0;
@@ -187,6 +190,7 @@ async function recordProfile(cdp, baseUrl, profile) {
     features: [
       { name: 'prefers-reduced-motion', value: reduced ? 'reduce' : 'no-preference' },
       { name: 'prefers-reduced-transparency', value: reduced ? 'reduce' : 'no-preference' },
+      { name: 'prefers-color-scheme', value: appearance },
     ],
   });
   await cdp.send('Page.navigate', { url: `${baseUrl}/tests/motion-sim.html?profile=${name}` });
@@ -203,58 +207,59 @@ async function recordProfile(cdp, baseUrl, profile) {
   const press = async (selector, hold = 3) => {
     const p = await rect(cdp, selector);
     await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: p.x, y: p.y, button: 'left', clickCount: 1 });
-    await segment('Press / hold', hold);
+    await segment('Drücken / halten', hold);
     await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: p.x, y: p.y, button: 'left', clickCount: 1 });
   };
-  await segment('Baseline · dashboard open', 5);
+  await segment('Start · Dashboard geöffnet', 5);
+  await segment('Sprache · Systemaktualisierungen · Sicherung · Anwesenheit', 4);
   await evaluate(cdp, `motionDemo.navigate('medien')`);
-  await segment('Navigation · haus → medien', 6);
+  await segment('Navigation · Haus → Medien', 6);
   await press('#detailTrigger', 3);
-  await segment('Detail · open', 4);
+  await segment('Details · geöffnet', 4);
   await evaluate(cdp, 'motionDemo.closeDetail()');
-  await segment('Detail · close', 4);
+  await segment('Details · geschlossen', 4);
   await evaluate(cdp, 'motionDemo.openDetail()');
-  await segment('Detail · repeated open', 3);
+  await segment('Details · wiederholt geöffnet', 3);
   await evaluate(cdp, 'motionDemo.closeDetail()');
-  await segment('Detail · repeated close', 3);
+  await segment('Details · wiederholt geschlossen', 3);
 
   await press('ios-light-card', 3);
-  await segment('Card · release', 3);
+  await segment('Karte · losgelassen', 3);
   await press('ios-light-card', 2);
-  await segment('Card · repeated release', 2);
+  await segment('Karte · wiederholt losgelassen', 2);
   await evaluate(cdp, `motionDemo.lightState('on')`);
-  await segment('Entity · light off → on', 5);
+  await segment('Entität · Licht Aus → Ein', 5);
   await evaluate(cdp, `motionDemo.lightState('off')`);
-  await segment('Entity · light on → off', 4);
+  await segment('Entität · Licht Ein → Aus', 4);
   await evaluate(cdp, `motionDemo.lightState('on')`);
-  await segment('Entity · light repeated on', 4);
+  await segment('Entität · Licht wieder Ein', 4);
 
   await evaluate(cdp, `motionDemo.mediaState('playing')`);
-  await segment('Media · idle → playing', 6);
+  await segment('Medien · Bereit → Wiedergabe', 6);
   await evaluate(cdp, `motionDemo.mediaState('idle')`);
-  await segment('Media · playing → idle', 4);
+  await segment('Medien · Wiedergabe → Bereit', 4);
   await evaluate(cdp, `motionDemo.mediaState('playing')`);
-  await segment('Media · repeated playing', 4);
+  await segment('Medien · Wiedergabe wiederholt', 4);
   await evaluate(cdp, `motionDemo.lightState('loading')`);
-  await segment('Loading → ready · loading', 4);
+  await segment('Laden → bereit · lädt', 4);
   await evaluate(cdp, `motionDemo.lightState('on')`);
-  await segment('Loading → ready · ready', 5);
+  await segment('Laden → bereit · bereit', 5);
   await evaluate(cdp, `motionDemo.lightState('unavailable'); motionDemo.mediaState('unavailable')`);
-  await segment('Unavailable → available · unavailable', 5);
+  await segment('Nicht verfügbar → verfügbar · nicht verfügbar', 5);
   await evaluate(cdp, `motionDemo.lightState('on'); motionDemo.mediaState('playing')`);
-  await segment('Unavailable → available · restored', 5);
+  await segment('Nicht verfügbar → verfügbar · wiederhergestellt', 5);
 
   await evaluate(cdp, 'motionDemo.reconnectPhase(false)');
-  await segment('Reconnect · disconnected', 5);
+  await segment('Wiederverbinden · getrennt', 5);
   await evaluate(cdp, 'motionDemo.reconnectPhase(true)');
-  await segment('Reconnect · restored', 5);
+  await segment('Wiederverbinden · verbunden', 5);
   await cdp.send('Page.reload', { ignoreCache: true });
   await sleep(650);
-  await segment('Reload · ready', 6);
+  await segment('Neu laden · bereit', 6);
   await evaluate(cdp, 'motionDemo.rapidNavigation()');
-  await segment('Rapid navigation · repeated destinations', 10);
+  await segment('Schnelle Navigation · wiederholte Ziele', 10);
   await sleep(500);
-  await segment('Rapid navigation · settled', 3);
+  await segment('Schnelle Navigation · stabil', 3);
 
   const beforeStress = await diagnostics(cdp);
   await evaluate(cdp, `for(let i=0;i<60;i++){const n=document.createElement('span'); n.className='observer-probe'; document.getElementById('app').appendChild(n); n.remove();}`);
@@ -268,12 +273,15 @@ async function recordProfile(cdp, baseUrl, profile) {
     afterStress.panel === 'dash' && afterStress.view === 'haus' && !afterStress.viewNext &&
     afterStress.rootStyleCount === 1 && afterStress.mobileStyleCount === 1 && afterStress.transparencyStyleCount === 1 &&
     afterStress.maxOptikPerShadowRoot <= 1 && afterStress.maxTransparencyPerShadowRoot <= 1 &&
-    afterStress.domNodes === beforeStress.domNodes && afterStress.reducedMotion === reduced && errors.length === 0;
+    afterStress.domNodes === beforeStress.domNodes && afterStress.reducedMotion === reduced &&
+    afterStress.appearance === appearance &&
+    (appearance === 'light' ? afterStress.lightCardBackground === 'rgb(255, 255, 255)' : afterStress.lightCardBackground === 'rgb(28, 28, 30)') &&
+    errors.length === 0;
 
   const file = path.join(EVIDENCE, `${name}.avi`);
   fs.writeFileSync(file, aviBuffer(frames, width, height, fps));
   return {
-    name, width, height, reduced, fps, frames: frames.length,
+    name, width, height, reduced, appearance, fps, frames: frames.length,
     video: path.relative(ROOT, file), bytes: fs.statSync(file).size, sha256: sha256(file),
     pass, beforeStress, afterStress, consoleErrors: errors,
   };
@@ -288,10 +296,10 @@ async function main() {
   await cdp.send('Runtime.enable');
   await cdp.send('Log.enable');
   const profiles = [
-    { name: 'iphone-393x852-motion', width:393, height:852, reduced:false },
-    { name: 'iphone-430x932-motion', width:430, height:932, reduced:false },
-    { name: 'iphone-375x812-stress', width:375, height:812, reduced:false },
-    { name: 'iphone-393x852-reduced-motion', width:393, height:852, reduced:true },
+    { name: 'iphone-393x852-motion', width:393, height:852, reduced:false, appearance:'dark' },
+    { name: 'iphone-430x932-motion', width:430, height:932, reduced:false, appearance:'light' },
+    { name: 'iphone-375x812-stress', width:375, height:812, reduced:false, appearance:'dark' },
+    { name: 'iphone-393x852-reduced-motion', width:393, height:852, reduced:true, appearance:'dark' },
   ];
   const results = [];
   try {

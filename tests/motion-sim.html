@@ -4,20 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <base href="/">
-  <title>HA Dashboard Motion Acceptance</title>
+  <title>HA-Dashboard · Bewegungsabnahme</title>
   <link rel="icon" href="data:,">
   <style>
-    :root { color-scheme: dark; }
+    :root {
+      color-scheme: light dark;
+      --primary-background-color: #000000;
+      --ha-card-background: #1c1c1e;
+      --card-background-color: #1c1c1e;
+      --primary-text-color: #f5f5f7;
+      --secondary-text-color: #c7c7cc;
+      --divider-color: rgba(255,255,255,.14);
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --primary-background-color: #f2f2f7;
+        --ha-card-background: #ffffff;
+        --card-background-color: #ffffff;
+        --primary-text-color: #1c1c1e;
+        --secondary-text-color: #3a3a3c;
+        --divider-color: rgba(60,60,67,.29);
+      }
+    }
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: #f5f5f7; overflow-x: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; color: var(--primary-text-color); overflow-x: hidden; }
     .app { min-height: 100vh; padding: 18px 14px 116px; position: relative; }
     .topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 2px 14px; }
-    .eyebrow { font-size: 12px; font-weight: 650; color: #c7c7cc; text-transform: uppercase; letter-spacing: .08em; }
+    .eyebrow { font-size: 12px; font-weight: 650; color: var(--secondary-text-color); text-transform: uppercase; letter-spacing: .08em; }
     h1 { margin: 2px 0 0; font-size: 32px; line-height: 1.05; letter-spacing: -.035em; }
-    .status { border-radius: 999px; padding: 7px 10px; background: rgba(118,118,128,.26); font-size: 12px; font-weight: 650; backdrop-filter: blur(18px); }
+    .status { border-radius: 999px; padding: 7px 10px; background: color-mix(in srgb, var(--primary-text-color) 10%, transparent); font-size: 12px; font-weight: 650; }
     .status.offline { color: #ff6961; background: rgba(255,105,97,.14); }
-    .hint { margin: 10px 0 14px; color: #c7c7cc; font-size: 13px; line-height: 1.35; }
+    .hint { margin: 10px 0 14px; color: var(--secondary-text-color); font-size: 13px; line-height: 1.35; }
   </style>
   <script>history.replaceState({}, "", "/dashboard-x/haus");</script>
   <script src="/apple-optik.js"></script>
@@ -26,34 +44,34 @@
 <body>
   <style>
     .stack { display: grid; gap: 10px; }
-    .demo-card { width: 100%; border: 0; text-align: left; color: inherit; padding: 14px; border-radius: 20px; background: rgba(28,28,30,.82); border: .5px solid rgba(255,255,255,.14); backdrop-filter: saturate(160%) blur(20px); -webkit-tap-highlight-color: transparent; }
+    .demo-card { width: 100%; border: 0; text-align: left; color: inherit; padding: 14px; border-radius: 20px; background: var(--ha-card-background); border: .5px solid var(--divider-color); -webkit-tap-highlight-color: transparent; }
     .demo-card .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .demo-card strong { font-size: 15px; }
-    .demo-card small { display: block; margin-top: 2px; color: #c7c7cc; font-size: 12px; }
-    .chev { font-size: 22px; color: #8e8e93; }
+    .demo-card small { display: block; margin-top: 2px; color: var(--secondary-text-color); font-size: 12px; }
+    .chev { font-size: 22px; color: var(--secondary-text-color); }
     .demo-card, .nav button, .sheet, .scrim { transition: transform .22s cubic-bezier(.32,.72,0,1), opacity .22s cubic-bezier(.22,.61,.36,1), background-color .22s cubic-bezier(.22,.61,.36,1); }
     .demo-card:active { transform: scale(.985); }
-    .nav { position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 7px; border-radius: 27px; background: rgba(28,28,30,.68); border: .5px solid rgba(255,255,255,.18); backdrop-filter: saturate(180%) blur(28px); }
-    .nav button { min-height: 48px; border: 0; border-radius: 20px; background: transparent; color: #c7c7cc; font: inherit; font-size: 11px; font-weight: 650; }
-    .nav button.active { color: #f5f5f7; background: rgba(232,181,122,.19); }
+    .nav { position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 7px; border-radius: 27px; background: color-mix(in srgb, var(--primary-background-color) 70%, transparent); border: .5px solid var(--divider-color); backdrop-filter: saturate(180%) blur(28px); }
+    .nav button { min-height: 48px; border: 0; border-radius: 20px; background: transparent; color: var(--secondary-text-color); font: inherit; font-size: 11px; font-weight: 650; }
+    .nav button.active { color: var(--primary-text-color); background: rgba(232,181,122,.19); }
     .nav button:active { transform: scale(.94); }
     .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.42); opacity: 0; pointer-events: none; }
-    .sheet { position: fixed; z-index: 21; left: 10px; right: 10px; bottom: 10px; min-height: 242px; padding: 14px; border-radius: 28px; background: rgba(36,36,38,.96); border: .5px solid rgba(255,255,255,.18); backdrop-filter: saturate(180%) blur(30px); transform: translate3d(0,112%,0) scale(.985); opacity: .5; }
+    .sheet { position: fixed; z-index: 21; left: 10px; right: 10px; bottom: 10px; min-height: 242px; padding: 14px; border-radius: 28px; background: color-mix(in srgb, var(--primary-background-color) 92%, transparent); border: .5px solid var(--divider-color); backdrop-filter: saturate(180%) blur(30px); transform: translate3d(0,112%,0) scale(.985); opacity: .5; }
     .detail-open .scrim { opacity: 1; pointer-events: auto; }
     .detail-open .sheet { transform: translate3d(0,0,0) scale(1); opacity: 1; }
     .grabber { width: 38px; height: 5px; border-radius: 5px; background: rgba(255,255,255,.28); margin: 0 auto 16px; }
     .sheet h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
-    .sheet p { color: #c7c7cc; font-size: 13px; line-height: 1.45; }
+    .sheet p { color: var(--secondary-text-color); font-size: 13px; line-height: 1.45; }
   </style>
   <style>
     .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-    .metric { padding: 12px; border-radius: 18px; background: rgba(44,44,46,.72); border: .5px solid rgba(255,255,255,.12); }
-    .metric span { display: block; color: #8e8e93; font-size: 11px; }
+    .metric { padding: 12px; border-radius: 18px; background: var(--ha-card-background); border: .5px solid var(--divider-color); }
+    .metric span { display: block; color: var(--secondary-text-color); font-size: 11px; }
     .metric b { display: block; margin-top: 3px; font-size: 17px; }
     .signal { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: #30d158; }
     .status.offline .signal { background: #ff6961; }
     @media (prefers-reduced-transparency: reduce) {
-      .demo-card, .nav, .sheet, .status { backdrop-filter: none; background-color: rgba(28,28,30,.97); }
+      .nav, .sheet { backdrop-filter: none; background-color: var(--primary-background-color); }
     }
     @media (prefers-reduced-motion: reduce) {
       .demo-card, .nav button, .sheet, .scrim { transition-duration: .01s !important; animation: none !important; }
@@ -62,19 +80,22 @@
   </style>
   <main class="app" id="app">
     <header class="topbar">
-      <div><div class="eyebrow">Zuhause · Motion Lab</div><h1 id="viewTitle">Haus</h1></div>
+      <div><div class="eyebrow">Zuhause · Bewegungsprüfung</div><h1 id="viewTitle">Haus</h1></div>
       <div class="status" id="connection"><span class="signal"></span><span id="connectionLabel">Verbunden</span></div>
     </header>
-    <p class="hint" id="hint">Repo-Simulation mit den echten Apple-Optik Custom Cards und Route-Styles.</p>
-    <section class="stack" aria-label="Motion test cards">
+    <p class="hint" id="hint">Lokale Simulation mit den echten Apple-Optik-Karten und Navigationsstilen.</p>
+    <section class="stack" aria-label="Karten für die Bewegungsprüfung">
       <ios-light-card id="lightCard"></ios-light-card>
       <ios-media-player id="mediaCard"></ios-media-player>
       <button class="demo-card" id="detailTrigger" type="button">
-        <div class="row"><div><strong>Details</strong><small>Sheet öffnen und schließen</small></div><span class="chev">›</span></div>
+        <div class="row"><div><strong>Details</strong><small>Detailansicht öffnen und schließen</small></div><span class="chev">›</span></div>
       </button>
+      <div class="demo-card" id="languageAudit">
+        <div class="row"><div><strong>Systemaktualisierungen</strong><small>Sicherung · Anwesenheit · Internetstatus</small></div><span class="chev">DE</span></div>
+      </div>
       <div class="metric-grid">
-        <div class="metric"><span>Route</span><b id="routeMetric">haus</b></div>
-        <div class="metric"><span>Entity</span><b id="entityMetric">bereit</b></div>
+        <div class="metric"><span>Ansicht</span><b id="routeMetric">haus</b></div>
+        <div class="metric"><span>Entität</span><b id="entityMetric">bereit</b></div>
       </div>
     </section>
   </main>
@@ -82,13 +103,13 @@
   <section class="sheet" id="sheet" aria-hidden="true">
     <div class="grabber"></div>
     <h2>Wohnzimmer</h2>
-    <p>Detailansicht mit kurzer, gedämpfter iOS-Transition. Keine Daueranimation.</p>
+    <p>Detailansicht mit kurzer, gedämpfter iOS-Animation. Keine Daueranimation.</p>
     <div class="metric-grid">
       <div class="metric"><span>Licht</span><b id="sheetLight">Aus</b></div>
-      <div class="metric"><span>Player</span><b id="sheetMedia">Bereit</b></div>
+      <div class="metric"><span>Wiedergabe</span><b id="sheetMedia">Bereit</b></div>
     </div>
   </section>
-  <nav class="nav" aria-label="Dashboard navigation">
+  <nav class="nav" aria-label="Dashboard-Navigation">
     <button class="active" data-view="haus">Haus</button>
     <button data-view="medien">Medien</button>
     <button data-view="system">System</button>
@@ -159,7 +180,7 @@
     function connection(online) {
       const el = document.getElementById('connection');
       el.classList.toggle('offline', !online);
-      document.getElementById('connectionLabel').textContent = online ? 'Verbunden' : 'Offline';
+      document.getElementById('connectionLabel').textContent = online ? 'Verbunden' : 'Getrennt';
     }
     function reconnectPhase(online) {
       connection(online);
