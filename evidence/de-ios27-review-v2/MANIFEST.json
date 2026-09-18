@@ -1,0 +1,182 @@
+{
+  "goalVersion": "ha-dashboard-de-ios27-review-v2",
+  "sourceBaseline": "411b7b2c4057812f0fd3cf256b9342fdc3250fc8",
+  "testedSourceHead": "e554ae77c11f52aeb8406f08e638f35cee25680e",
+  "generatedAt": "2026-09-18T00:01:57.402Z",
+  "allPass": true,
+  "appleDesignReferences": [
+    "https://developer.apple.com/design/human-interface-guidelines/",
+    "https://developer.apple.com/design/tips/",
+    "https://developer.apple.com/design/human-interface-guidelines/buttons",
+    "https://developer.apple.com/design/human-interface-guidelines/accessibility"
+  ],
+  "media": [
+    {
+      "path": "evidence/de-ios27-review-v2/iphone-393x852-motion.avi",
+      "viewport": "393x852",
+      "appearance": "dark",
+      "scenario": "iphone-393x852-motion",
+      "reducedMotion": false,
+      "fps": 8,
+      "frameCount": 117,
+      "pass": true,
+      "sha256": "71415a26ed0f32450aac008daf5ccd9b89f4a7bf9ec3bc0e7af3319b0ef13ba2",
+      "bytes": 2228958,
+      "reloadIncluded": true,
+      "domNodesBefore": 70,
+      "domNodesAfter": 70,
+      "styleCountsAfter": {
+        "root": 1,
+        "mobile": 1,
+        "transparency": 1
+      },
+      "consoleErrors": [],
+      "overflow": false,
+      "cardBackground": "rgb(28, 28, 30)",
+      "cardColor": "rgb(245, 245, 247)"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/iphone-430x932-motion.avi",
+      "viewport": "430x932",
+      "appearance": "light",
+      "scenario": "iphone-430x932-motion",
+      "reducedMotion": false,
+      "fps": 8,
+      "frameCount": 117,
+      "pass": true,
+      "sha256": "85020bb94e7db29e41ea505a03f93e557edd774f0f15b939a2ffcf1dd5133f5d",
+      "bytes": 2414044,
+      "reloadIncluded": true,
+      "domNodesBefore": 70,
+      "domNodesAfter": 70,
+      "styleCountsAfter": {
+        "root": 1,
+        "mobile": 1,
+        "transparency": 1
+      },
+      "consoleErrors": [],
+      "overflow": false,
+      "cardBackground": "rgb(255, 255, 255)",
+      "cardColor": "rgb(28, 28, 30)"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/iphone-375x812-stress.avi",
+      "viewport": "375x812",
+      "appearance": "dark",
+      "scenario": "iphone-375x812-stress",
+      "reducedMotion": false,
+      "fps": 8,
+      "frameCount": 117,
+      "pass": true,
+      "sha256": "8c76470390871b07cf7f46cfdaae71204ca865311f8ecd8c2d263774acb8950f",
+      "bytes": 2190452,
+      "reloadIncluded": true,
+      "domNodesBefore": 70,
+      "domNodesAfter": 70,
+      "styleCountsAfter": {
+        "root": 1,
+        "mobile": 1,
+        "transparency": 1
+      },
+      "consoleErrors": [],
+      "overflow": false,
+      "cardBackground": "rgb(28, 28, 30)",
+      "cardColor": "rgb(245, 245, 247)"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/iphone-393x852-reduced-motion.avi",
+      "viewport": "393x852",
+      "appearance": "dark",
+      "scenario": "iphone-393x852-reduced-motion",
+      "reducedMotion": true,
+      "fps": 8,
+      "frameCount": 117,
+      "pass": true,
+      "sha256": "78944bd520cced10394ec9f451cab26b6afa6b7fbc2a8f1a4887b4e0f1845ba3",
+      "bytes": 2248368,
+      "reloadIncluded": true,
+      "domNodesBefore": 70,
+      "domNodesAfter": 70,
+      "styleCountsAfter": {
+        "root": 1,
+        "mobile": 1,
+        "transparency": 1
+      },
+      "consoleErrors": [],
+      "overflow": false,
+      "cardBackground": "rgb(28, 28, 30)",
+      "cardColor": "rgb(245, 245, 247)"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-375x812-stress-frame-008.jpg",
+      "bytes": 18379,
+      "sha256": "2ce9e25c276c63f04b94914681e06e0066239c425f31fb19ea20ebd602cdbc11"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-375x812-stress-frame-108.jpg",
+      "bytes": 17541,
+      "sha256": "0c911ed43eaf2b2a5fe737a8744edb94889d18d6458f884a09c8c9d23e591e70"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-393x852-motion-frame-008.jpg",
+      "bytes": 18770,
+      "sha256": "503f5bc96c7c1a4fe56c2425469fa6c79bb90466652683621d0d1cb44988e859"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-393x852-motion-frame-018.jpg",
+      "bytes": 18264,
+      "sha256": "e633e0841d7eeba2dce7d79c3845dbb507f48a26dcdaa47708411023660eb575"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-393x852-motion-frame-078.jpg",
+      "bytes": 19494,
+      "sha256": "86088ae18b8b089506811e99c1bb5c9a2765ff87e0a80e26d78da08f49c7aaf3"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-393x852-motion-frame-108.jpg",
+      "bytes": 17886,
+      "sha256": "70caf708a94f408afce1fcfe6cddab4e4436582f8cab035666644f6246c23c69"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-393x852-reduced-motion-frame-008.jpg",
+      "bytes": 18773,
+      "sha256": "29fb2191aad71268037db2bc8221b0c3d927c65d71b7a23a15679bdc88f217bc"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-393x852-reduced-motion-frame-108.jpg",
+      "bytes": 17917,
+      "sha256": "4cc75a7392b3b92d8db68c732628a4f7edb327a571d600f2c4c685823d995f5d"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-430x932-motion-frame-008.jpg",
+      "bytes": 20321,
+      "sha256": "a3ba290db67ea93d4bb90b48537eef6e9ed7f06ebf2a52daf47d460d41759d6b"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-430x932-motion-frame-018.jpg",
+      "bytes": 19970,
+      "sha256": "ea9278dc697978c7a6a00956bc16884968e520465eb3d57c48b1b8af0e4b2ceb"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-430x932-motion-frame-078.jpg",
+      "bytes": 21190,
+      "sha256": "0fe09b78a1c96cc1985408aa0c54ac476f57d0806264a727e7da751b2706cc60"
+    },
+    {
+      "path": "evidence/de-ios27-review-v2/screenshots/iphone-430x932-motion-frame-108.jpg",
+      "bytes": 19664,
+      "sha256": "0a43026df70db4cbd0c7bd680282da31c22a9224913dcfbb50a321dfe325846b"
+    }
+  ],
+  "metricsEvidence": "evidence/de-ios27-review-v2/results.json",
+  "acceptanceMatrix": "evidence/de-ios27-review-v2/ACCEPTANCE_MATRIX.md",
+  "staticChecks": {
+    "routeTests": "9/9 PASS",
+    "pythonTests": "19/19 PASS",
+    "gitDiffCheck": "PASS",
+    "jsSyntax": "PASS"
+  },
+  "liveActionsPerformed": false
+}
