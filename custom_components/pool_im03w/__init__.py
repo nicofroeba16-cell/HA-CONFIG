@@ -45,16 +45,15 @@ async def _find_live_device(hass: HomeAssistant):
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Run the opt-in YAML diagnostic bootstrap without exposing secrets."""
+    """Run the opt-in YAML subdevice diagnostic without exposing secrets."""
     if DOMAIN not in config:
         return True
 
     device = await _find_live_device(hass)
     if device is None:
-        _LOGGER.error("POOL_IM03W_DIAGNOSTIC_ERROR device_not_available")
+        _LOGGER.error("POOL_IM03W_SUBDEV_ERROR device_not_available")
         return True
 
-    # Deliberately ignore Tuya's cloud-reported IP here: it can be the public WAN IP.
     runtime = PoolRuntimeData(
         device_id=device.id,
         name=device.name or "Pool IM-03-W",
@@ -62,20 +61,22 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
         local_key=device.local_key,
     )
 
-    from .local import PoolStatusError, read_raw_status
+    from .local import PoolStatusError, read_subdevice_directory
 
     try:
-        dps = await hass.async_add_executor_job(read_raw_status, runtime)
+        response = await hass.async_add_executor_job(read_subdevice_directory, runtime)
     except PoolStatusError as err:
-        _LOGGER.error("POOL_IM03W_DIAGNOSTIC_ERROR type=%s", type(err).__name__)
+        _LOGGER.error("POOL_IM03W_SUBDEV_ERROR type=%s", type(err).__name__)
         return True
 
+    data = response.get("data") if isinstance(response, dict) else None
+    sanitized = data if isinstance(data, dict) else {}
     _LOGGER.warning(
-        "POOL_IM03W_DIAGNOSTIC device=%s protocol=%s address=%s raw_dps=%s",
+        "POOL_IM03W_SUBDEV device=%s protocol=%s address=%s data=%s",
         device.id,
         runtime.protocol_version,
         runtime.address,
-        json.dumps(dps, sort_keys=True, ensure_ascii=False),
+        json.dumps(sanitized, sort_keys=True, ensure_ascii=False),
     )
     return True
 
