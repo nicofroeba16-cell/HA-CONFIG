@@ -6,6 +6,7 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import selector
 
 from .const import CONF_DEVICE_ID, CONF_TUYA_ENTRY_ID, DOMAIN, PRODUCT_ID
 
@@ -49,5 +50,15 @@ class PoolIm03wConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        schema = vol.Schema({vol.Required(CONF_TARGET): vol.In(choices)})
+        options = [
+            selector.SelectOptionDict(value=value, label=label)
+            for value, label in choices.items()
+        ]
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_TARGET): selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=options)
+                )
+            }
+        )
         return self.async_show_form(step_id="user", data_schema=schema)
