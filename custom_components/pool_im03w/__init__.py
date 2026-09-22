@@ -28,7 +28,7 @@ class PoolRuntimeData:
 type PoolConfigEntry = ConfigEntry[PoolRuntimeData]
 
 
-async def _find_live_device(hass: HomeAssistant):
+async def _find_live_manager_device(hass: HomeAssistant):
     for _ in range(10):
         for tuya_entry in hass.config_entries.async_entries("tuya"):
             listener = tuya_entry.runtime_data
@@ -38,50 +38,50 @@ async def _find_live_device(hass: HomeAssistant):
             for device in manager.device_map.values():
                 if getattr(device, "product_id", None) != PRODUCT_ID:
                     continue
-                if getattr(device, "local_key", None):
-                    return device
+                return manager, device
         await asyncio.sleep(2)
-    return None
+    return None, None
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Run the opt-in YAML subdevice diagnostic without exposing secrets."""
-    if DOMAIN not in config:
+    """Run an opt-in passive capture on the existing Tuya MQTT stream."""
+    settings = config.get(DOMAIN)
+    if not isinstance(settings, dict):
         return True
 
-    device = await _find_live_device(hass)
-    if device is None:
-        _LOGGER.error("POOL_IM03W_SUBDEV_ERROR device_not_available")
+    capture_seconds = int(settings.get("passive_capture_seconds", 0))
+    if capture_seconds <= 0:
         return True
 
-    runtime = PoolRuntimeData(
-        device_id=device.id,
-        name=device.name or "Pool IM-03-W",
-        address=None,
-        local_key=device.local_key,
-    )
+    manager, device = await _find_live_manager_device(hass)
+    if manager is None or device is None:
+        _LOGGER.error("POOL_IM03W_EVENT_ERROR device_not_available")
+        return True
 
-    from .local import PoolStatusError, read_subdevice_directory
+    from .event_capture import attach_passive_mq_capture
+
+    def sink(report: dict) -> None:
+        _LOGGER.warning(
+            "POOL_IM03W_EVENT %s",
+            json.dumps(report, sort_keys=True, ensure_ascii=False),
+        )
 
     try:
-        response = await hass.async_add_executor_job(read_subdevice_directory, runtime)
-    except PoolStatusError as err:
-        _LOGGER.error(
-            "POOL_IM03W_SUBDEV_ERROR type=%s reason=%s",
-            type(err).__name__,
-            str(err),
-        )
+        detach = attach_passive_mq_capture(manager, device.id, sink)
+    except RuntimeError as err:
+        _LOGGER.error("POOL_IM03W_EVENT_ERROR reason=%s", str(err))
         return True
 
-    data = response.get("data") if isinstance(response, dict) else None
-    sanitized = data if isinstance(data, dict) else {}
-    _LOGGER.warning(
-        "POOL_IM03W_SUBDEV device=%s protocol=%s address=%s data=%s",
-        device.id,
-        runtime.protocol_version,
-        runtime.address,
-        json.dumps(sanitized, sort_keys=True, ensure_ascii=False),
-    )
+    _LOGGER.warning("POOL_IM03W_EVENT_CAPTURE_STARTED seconds=%s", capture_seconds)
+
+    async def stop_capture() -> None:
+        try:
+            await asyncio.sleep(capture_seconds)
+        finally:
+            detach()
+            _LOGGER.warning("POOL_IM03W_EVENT_CAPTURE_STOPPED")
+
+    hass.async_create_task(stop_capture(), "pool_im03w passive event capture")
     return True
 
 
