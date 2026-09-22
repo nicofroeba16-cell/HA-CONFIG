@@ -66,7 +66,11 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     try:
         response = await hass.async_add_executor_job(read_subdevice_directory, runtime)
     except PoolStatusError as err:
-        _LOGGER.error("POOL_IM03W_SUBDEV_ERROR type=%s", type(err).__name__)
+        _LOGGER.error(
+            "POOL_IM03W_SUBDEV_ERROR type=%s reason=%s",
+            type(err).__name__,
+            str(err),
+        )
         return True
 
     data = response.get("data") if isinstance(response, dict) else None
