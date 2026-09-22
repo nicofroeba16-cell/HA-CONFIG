@@ -57,11 +57,27 @@ This result must not be overinterpreted as "there are no subdevices". It current
 
 The live diagnostic files and YAML were rolled back, rollback `ha core check` returned `RC=0`, Home Assistant was restarted, and the frontend returned HTTP 200 afterward.
 
+## Passive Tuya MQTT event capture
+
+The Tuya Device Sharing SDK already maintains an MQTT stream for device reports. Its `SharingMQ` object supports additional message listeners, so a diagnostic observer can attach to the existing stream without issuing any device command, opening a second device socket, or altering the Tuya subscription set.
+
+The SDK receives protocol-4 device reports in raw `data.status` form before its normal manager mapping. For devices with local strategy enabled, the manager discards unknown `dpId` values that are not present in `device.local_strategy`. This makes the pre-manager MQTT message boundary the strongest current candidate for seeing manufacturer-specific P03R datapoints that Home Assistant never exposes as normal entity state.
+
+The branch therefore now contains `event_capture.py` with:
+
+- target-device filtering by `devId`;
+- protocol-4 device-report filtering;
+- sanitization limited to `dpId`, `code`, `value`, and timestamp `t`;
+- an observer-only `attach_passive_mq_capture()` helper using only `add_message_listener()` / `remove_message_listener()`;
+- tests proving unrelated devices/protocols are ignored and the listener detaches cleanly.
+
+No temperature datapoint is inferred from these structures. A real incoming report must be observed and correlated with the physical P03R display before any production mapping is implemented.
+
 ## Candidate path order
 
-1. If separately approved, repeat one `subdev_query()` with sanitized reason logging to classify the failure precisely.
-2. If the gateway query is unsupported or times out, move to passive gateway event/RF observation rather than guessing Tuya child semantics.
-3. If a child identifier is ever observed, capture only read-only child reports carrying `cid` + `dps` and correlate candidate values with the physical P03R display.
+1. Prefer a bounded passive capture from the already-running Tuya MQTT stream; this can reveal raw manufacturer-specific `dpId` reports without polling or controlling the gateway.
+2. If no useful report arrives during a realistic P03R reporting interval, inspect passive local Tuya-3.4 gateway traffic next.
+3. If a child identifier or candidate raw DP is observed, correlate it across multiple physical temperature readings before assigning semantics.
 
 No production temperature mapping is assigned until a real value is observed and correlated with the physical P03R display.
 
