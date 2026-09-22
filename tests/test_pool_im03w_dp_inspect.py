@@ -1,9 +1,12 @@
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "tools" / "pool_im03w_dp_inspect.py"
+ROOT = Path(__file__).resolve().parents[1]
+MODULE_PATH = ROOT / "tools" / "pool_im03w_dp_inspect.py"
+LIVE_FIXTURE = ROOT / "tests" / "fixtures" / "pool_im03w_live_status_20260922.json"
 spec = importlib.util.spec_from_file_location("pool_im03w_dp_inspect", MODULE_PATH)
 module = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
@@ -37,6 +40,16 @@ class PoolIm03wDpInspectTests(unittest.TestCase):
         result = module.inspect_payload({"dps": {"1": "unknown"}})
         self.assertIsNone(result["standard_temperature_c"])
         self.assertFalse(result["standard_equals_known_minimum"])
+
+    def test_sanitized_live_status_fixture_contains_no_temperature_candidate(self):
+        payload = json.loads(LIVE_FIXTURE.read_text(encoding="utf-8"))
+        result = module.inspect_payload(payload)
+        self.assertIsNone(result["standard_temperature_c"])
+        self.assertFalse(result["standard_equals_known_minimum"])
+        self.assertEqual(payload["protocol_version"], "3.4")
+        self.assertEqual(payload["dps"]["9"], "c")
+        self.assertEqual(result["numeric_candidates"]["131"], 3)
+        self.assertNotIn("1", result["numeric_candidates"])
 
 
 if __name__ == "__main__":
