@@ -1,0 +1,18 @@
+{
+  "title": "Pool IM-03-W",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select IM-03-W",
+        "description": "Select the existing Tuya IM-03-W gateway to use for read-only local datapoint diagnostics.",
+        "data": {
+          "target": "Gateway"
+        }
+      }
+    },
+    "abort": {
+      "no_devices": "No compatible IM-03-W is currently available from the loaded Tuya integration.",
+      "already_configured": "This IM-03-W is already configured."
+    }
+  }
+}
