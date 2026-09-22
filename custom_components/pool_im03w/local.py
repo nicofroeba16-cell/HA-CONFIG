@@ -22,33 +22,39 @@ def _protocol_candidates(runtime: PoolRuntimeData, discovered: dict[str, Any] | 
     return list(dict.fromkeys(values))
 
 
-def read_raw_status(runtime: PoolRuntimeData) -> dict[str, Any]:
-    """Read current IM-03-W status without sending control commands."""
-    discovered: dict[str, Any] | None = None
+def _discover(runtime: PoolRuntimeData) -> dict[str, Any] | None:
     try:
         found = tinytuya.find_device(dev_id=runtime.device_id)
-        if isinstance(found, dict):
-            discovered = found
     except Exception:
-        discovered = None
+        return None
+    return found if isinstance(found, dict) else None
 
-    address = runtime.address
+
+def _address(runtime: PoolRuntimeData, discovered: dict[str, Any] | None) -> str:
     if discovered and discovered.get("ip"):
-        address = str(discovered["ip"])
-    if not address:
-        address = "Auto"
+        return str(discovered["ip"])
+    return runtime.address or "Auto"
 
+
+def _device(runtime: PoolRuntimeData, address: str, version: str):
+    return tinytuya.Device(
+        runtime.device_id,
+        address,
+        runtime.local_key,
+        version=float(version),
+        connection_timeout=3,
+    )
+
+
+def read_raw_status(runtime: PoolRuntimeData) -> dict[str, Any]:
+    """Read current IM-03-W status without sending control commands."""
+    discovered = _discover(runtime)
+    address = _address(runtime, discovered)
     last_error: str | None = None
+
     for version in _protocol_candidates(runtime, discovered):
         try:
-            device = tinytuya.Device(
-                runtime.device_id,
-                address,
-                runtime.local_key,
-                version=float(version),
-                connection_timeout=3,
-            )
-            response = device.status()
+            response = _device(runtime, address, version).status()
         except Exception as err:
             last_error = type(err).__name__
             continue
@@ -66,3 +72,31 @@ def read_raw_status(runtime: PoolRuntimeData) -> dict[str, Any]:
         return {str(key): value for key, value in dps.items()}
 
     raise PoolStatusError(last_error or "no readable local status response")
+
+
+def read_subdevice_directory(runtime: PoolRuntimeData) -> dict[str, Any]:
+    """Query gateway sub-device presence without issuing control commands."""
+    discovered = _discover(runtime)
+    address = _address(runtime, discovered)
+    last_error: str | None = None
+
+    for version in _protocol_candidates(runtime, discovered):
+        try:
+            response = _device(runtime, address, version).subdev_query()
+        except Exception as err:
+            last_error = type(err).__name__
+            continue
+
+        if not isinstance(response, dict):
+            last_error = "unexpected response type"
+            continue
+        data = response.get("data")
+        if not isinstance(data, dict):
+            last_error = str(response.get("Error", "missing data"))
+            continue
+
+        runtime.address = None if address == "Auto" else address
+        runtime.protocol_version = version
+        return response
+
+    raise PoolStatusError(last_error or "no readable sub-device response")
