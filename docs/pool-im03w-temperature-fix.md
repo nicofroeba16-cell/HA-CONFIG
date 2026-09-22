@@ -15,7 +15,7 @@ This branch prepares a Home Assistant repair for the pool thermometer without ch
 - No offset/template/alternate scaling is justified by current evidence.
 - `localtuya` is present on live HA but has no configured entry for this device and remains untouched.
 
-## Live diagnostic result — 2026-09-22
+## Live local-status diagnostic — 2026-09-22
 
 The approved one-shot diagnostic found the real IM-03-W at `192.168.178.56`, Tuya protocol `3.4`. Its read-only local `status()` snapshot was:
 
@@ -40,39 +40,30 @@ The approved one-shot diagnostic found the real IM-03-W at `192.168.178.56`, Tuy
 
 The sanitized fixture is `tests/fixtures/pool_im03w_live_status_20260922.json`. The actual P03R temperature is **not present** in the normal gateway `status()` snapshot. Local DP `1`/`va_temperature` is absent while the cloud path still reports `-200`.
 
-## Offline gateway/subdevice research
+## Gateway/subdevice research and live probe
 
 TinyTuya 1.20 exposes a gateway-only `subdev_query()` read path implemented with Tuya `LAN_EXT_STREAM` and `reqType=subdev_online_stat_query`. Its known response form reports child identifiers in `online`, `offline`, and `nearby` lists. This is a query operation, not a DP-control operation.
 
-The branch now contains:
+The branch contains:
 
 - `read_subdevice_directory()` in the local transport, using only `subdev_query()`.
 - `tools/pool_im03w_subdev_inspect.py` for child-directory responses and common `cid` + `dps` report shapes.
 - Unit coverage for child-ID extraction, nested/top-level child reports, duplicate suppression, and no-guess behavior.
 - Contract tests that forbid known control/write methods including `set_*`, `send_commands`, raw `send()`, and `updatedps()`.
 
-This does **not** yet prove that the proprietary RF P03R is represented as a Tuya child device. It establishes the next narrow read-only probe and the parser needed to evaluate the result safely.
+An explicitly approved second one-shot live diagnostic deployed the CI-green subdevice bootstrap, passed `ha core check`, and issued exactly one `subdev_query()` to the real IM-03-W. The gateway did **not** return a usable child-directory response. Home Assistant logged `POOL_IM03W_SUBDEV_ERROR type=PoolStatusError` after roughly 20 seconds.
+
+This result must not be overinterpreted as "there are no subdevices". It currently means only that the standard TinyTuya gateway query did not yield the expected response. Plausible classes are timeout/no response, an unsupported gateway query, or a response shape without the expected `data` object. The diagnostic was improved afterward to log only this sanitized reason string on a future run; no second live query has been made yet.
+
+The live diagnostic files and YAML were rolled back, rollback `ha core check` returned `RC=0`, Home Assistant was restarted, and the frontend returned HTTP 200 afterward.
 
 ## Candidate path order
 
-1. Query the IM-03-W subdevice directory with `subdev_query()`.
-2. If a child ID appears, capture passive/read-only child reports carrying `cid` + `dps`.
-3. If no child exists, investigate a manufacturer-specific RF/read-only path instead of guessing Tuya child semantics.
+1. If separately approved, repeat one `subdev_query()` with sanitized reason logging to classify the failure precisely.
+2. If the gateway query is unsupported or times out, move to passive gateway event/RF observation rather than guessing Tuya child semantics.
+3. If a child identifier is ever observed, capture only read-only child reports carrying `cid` + `dps` and correlate candidate values with the physical P03R display.
 
 No production temperature mapping is assigned until a real value is observed and correlated with the physical P03R display.
-
-## Next live diagnostic gate
-
-The next live action, if separately approved, is deliberately minimal:
-
-1. Backup current HA config/component target.
-2. Deploy the exact CI-green diagnostic branch head only.
-3. `ha core check`.
-4. Run **one** IM-03-W `subdev_query()` through the existing Tuya local key held inside HA.
-5. Log only sanitized response fields; never log the local key/token.
-6. Roll the diagnostic files/config back immediately and config-check the rollback.
-
-No DP writes, pairing, reset, firmware action, Smart Life change, network change, production sensor swap, merge, or release are part of this gate.
 
 ## Repair acceptance criteria
 
