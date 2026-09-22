@@ -10,19 +10,14 @@ This branch prepares a Home Assistant repair for the pool thermometer without ch
 - Gateway model: INKBIRD `IM-03-W`
 - Tuya product ID: `vftsypplefmoy4uc`
 - Existing HA entity: `sensor.pool_basis_temperatur`
-- Current standard Tuya code used by HA: `va_temperature`
-- Observed Tuya cloud raw value: `-200`
-- Tuya scale: `1`, therefore HA correctly renders the supplied value as `-20.0 °C`
-- Direct Tuya cloud status also reports `va_temperature=-200`; this is not a Home Assistant decimal-scaling defect.
-- Current evidence does not support an offset, template correction, alternate decimal scaling, or guessed custom datapoint mapping.
-- The normal Home Assistant Tuya sharing path does not expose the complete manufacturer-specific/raw datapoint set needed to identify the P03R channel.
+- Tuya cloud reports `va_temperature=-200` with scale `1`; HA therefore correctly renders `-20.0 °C`.
+- This is not a Home Assistant decimal-scaling defect.
+- No offset/template/alternate scaling is justified by current evidence.
 - `localtuya` is present on live HA but has no configured entry for this device and remains untouched.
 
 ## Live diagnostic result — 2026-09-22
 
-An explicitly approved temporary diagnostic bootstrap was deployed to live HA, config-checked successfully, run once, and removed again. The real IM-03-W was discovered at `192.168.178.56` and answered using Tuya protocol `3.4`.
-
-The direct read-only local `status()` snapshot returned:
+The approved one-shot diagnostic found the real IM-03-W at `192.168.178.56`, Tuya protocol `3.4`. Its read-only local `status()` snapshot was:
 
 ```json
 {
@@ -43,39 +38,41 @@ The direct read-only local `status()` snapshot returned:
 }
 ```
 
-The sanitized fixture is committed as `tests/fixtures/pool_im03w_live_status_20260922.json`. The real P03R water temperature is **not present in this normal gateway `status()` snapshot**. DP `1`/`va_temperature` is absent locally while the cloud path still exposes `-200`.
+The sanitized fixture is `tests/fixtures/pool_im03w_live_status_20260922.json`. The actual P03R temperature is **not present** in the normal gateway `status()` snapshot. Local DP `1`/`va_temperature` is absent while the cloud path still reports `-200`.
 
 ## Offline gateway/subdevice research
 
-TinyTuya 1.20 exposes a gateway-only `subdev_query()` read path implemented with Tuya `LAN_EXT_STREAM` and `reqType=subdev_online_stat_query`. Its expected response reports child identifiers in `online`, `offline`, and `nearby` lists. This is a query operation, not a DP-control operation.
+TinyTuya 1.20 exposes a gateway-only `subdev_query()` read path implemented with Tuya `LAN_EXT_STREAM` and `reqType=subdev_online_stat_query`. Its known response form reports child identifiers in `online`, `offline`, and `nearby` lists. This is a query operation, not a DP-control operation.
 
 The branch now contains:
 
 - `read_subdevice_directory()` in the local transport, using only `subdev_query()`.
-- `tools/pool_im03w_subdev_inspect.py` to normalize subdevice-directory responses and common `cid` + `dps` child-report shapes offline.
-- Unit coverage for child-ID discovery, nested/top-level child reports, and the no-guess behavior.
-- Contract tests that forbid known control/write methods, including raw `send()` and `updatedps()`.
+- `tools/pool_im03w_subdev_inspect.py` for child-directory responses and common `cid` + `dps` report shapes.
+- Unit coverage for child-ID extraction, nested/top-level child reports, duplicate suppression, and no-guess behavior.
+- Contract tests that forbid known control/write methods including `set_*`, `send_commands`, raw `send()`, and `updatedps()`.
 
-This does **not** prove that the proprietary RF P03R is represented as a Tuya child device. It establishes the next narrow read-only probe and the parser needed to evaluate its response without guessing.
+This does **not** yet prove that the proprietary RF P03R is represented as a Tuya child device. It establishes the next narrow read-only probe and the parser needed to evaluate the result safely.
 
-## Working hypothesis
+## Candidate path order
 
-The P03R water temperature is likely reported on a manufacturer-specific RF/subsensor path while the standard cloud `va_temperature` remains at `-200`. Candidate mechanisms are now ordered as:
+1. Query the IM-03-W subdevice directory with `subdev_query()`.
+2. If a child ID appears, capture passive/read-only child reports carrying `cid` + `dps`.
+3. If no child exists, investigate a manufacturer-specific RF/read-only path instead of guessing Tuya child semantics.
 
-1. Tuya gateway subdevice directory/report (`subdev_query`, child `cid` reports).
-2. Passive asynchronous gateway event frames carrying `cid`/DPS data.
-3. A manufacturer-specific read-only path if the P03R is not represented as a Tuya child.
+No production temperature mapping is assigned until a real value is observed and correlated with the physical P03R display.
 
-No production temperature mapping is assigned until a real value is observed and correlated with the physical display.
+## Next live diagnostic gate
 
-## Read-only discovery strategy
+The next live action, if separately approved, is deliberately minimal:
 
-1. Query only the exact IM-03-W.
-2. Do not pair, reset, update firmware, write any DP, or call control methods.
-3. Keep local keys/tokens inside Home Assistant or transient process memory; never print or commit them.
-4. Sanitize every captured response before committing fixtures.
-5. Correlate any candidate value with the physical P03R display across multiple readings.
-6. Preserve real negative temperatures and return unavailable when the P03R path is absent.
+1. Backup current HA config/component target.
+2. Deploy the exact CI-green diagnostic branch head only.
+3. `ha core check`.
+4. Run **one** IM-03-W `subdev_query()` through the existing Tuya local key held inside HA.
+5. Log only sanitized response fields; never log the local key/token.
+6. Roll the diagnostic files/config back immediately and config-check the rollback.
+
+No DP writes, pairing, reset, firmware action, Smart Life change, network change, production sensor swap, merge, or release are part of this gate.
 
 ## Repair acceptance criteria
 
@@ -85,23 +82,12 @@ No production temperature mapping is assigned until a real value is observed and
 4. Return unavailable when the P03R channel is absent/disconnected.
 5. Survive gateway/P03R reconnect and Home Assistant restart.
 6. Keep the existing entity untouched during initial validation.
-7. Do not merge or deploy the production mapping until exact-head tests and live comparison are green and separately approved.
+7. Do not merge/deploy the production mapping until exact-head tests and live comparison are green and separately approved.
 
 ## Live-system boundary
 
-Allowed without a new live-write approval:
+Allowed without a new live-write approval: HA state/registry/log reads, IM-03-W status/read requests, passive event evidence, and offline analysis of sanitized captures.
 
-- HA state/registry/log reads
-- IM-03-W status/read requests only
-- passive network/event evidence
-- offline analysis of sanitized captures
+Not allowed without separate explicit live approval: `/config` changes/deployment, HA restart/reload for this fix, Tuya/Smart Life writes/configuration, pairing/reset/firmware changes, device migration, or network configuration changes.
 
-Not allowed without separate explicit live approval:
-
-- Home Assistant `/config` changes or deployment
-- HA reload/restart for this fix
-- Tuya/Smart Life DP writes or device configuration changes
-- pairing, reset, firmware update or account/device migration
-- network configuration changes
-
-GitHub branch work, test development, documentation, commits, pushes, CI and draft-PR updates are not blocked by the live read-only rule.
+GitHub development/CI/PR maintenance is not blocked by the live read-only rule.
