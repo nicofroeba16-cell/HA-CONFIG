@@ -44,6 +44,22 @@ class PoolIm03wComponentContractTests(unittest.TestCase):
         self.assertNotIn("temperature_dp", source)
         self.assertNotIn("va_temperature", source)
 
+    def test_probe_does_not_expose_secrets(self):
+        source = (COMPONENT / "sensor.py").read_text()
+        forbidden = {
+            '"local_key"',
+            "'local_key'",
+            '"access_token"',
+            "'access_token'",
+            '"refresh_token"',
+            "'refresh_token'",
+            '"client_secret"',
+            "'client_secret'",
+        }
+        for marker in forbidden:
+            with self.subTest(marker=marker):
+                self.assertNotIn(marker, source)
+
 
 if __name__ == "__main__":
     unittest.main()
