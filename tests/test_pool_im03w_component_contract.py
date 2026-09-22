@@ -21,7 +21,7 @@ class PoolIm03wComponentContractTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 ast.parse(path.read_text(), filename=str(path))
 
-    def test_local_transport_has_no_control_calls(self):
+    def test_local_transport_has_only_read_queries(self):
         tree = ast.parse((COMPONENT / "local.py").read_text())
         attrs = {
             node.func.attr
@@ -29,6 +29,7 @@ class PoolIm03wComponentContractTests(unittest.TestCase):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
         }
         self.assertIn("status", attrs)
+        self.assertIn("subdev_query", attrs)
         forbidden = {
             "set_value",
             "set_status",
@@ -36,6 +37,8 @@ class PoolIm03wComponentContractTests(unittest.TestCase):
             "turn_on",
             "turn_off",
             "send_commands",
+            "updatedps",
+            "send",
         }
         self.assertTrue(attrs.isdisjoint(forbidden), attrs & forbidden)
 
